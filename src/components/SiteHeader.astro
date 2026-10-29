@@ -15,12 +15,14 @@ const { current, headings = [], child } = Astro.props;
 
 <div class="site-header-slot" data-scroll-header-slot>
   <nav class="site-header" aria-label="Main navigation" data-scroll-header>
-    <a class="wordmark" href="/" aria-label="limu home"><Mark size={22} />limu</a>
-    <div class="site-header-actions">
+    <div class="site-header-brand">
+      <a class="wordmark" href="/" aria-label="limu home"><Mark size={22} />limu</a>
       <div class="segmented-control header-languages" role="group" aria-label="Language">
-        <button type="button" data-lang-tab="go" aria-pressed="false">Go</button>
         <button type="button" data-lang-tab="rust" aria-pressed="false">Rust</button>
+        <button type="button" data-lang-tab="go" aria-pressed="false">Go</button>
       </div>
+    </div>
+    <div class="site-header-actions">
       <HeaderIcons />
       <MobileDocsMenu current={current} headings={headings} child={child} />
     </div>

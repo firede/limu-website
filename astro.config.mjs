@@ -47,8 +47,9 @@ const renderDiagram = (node) => {
 
 // The languages limu is written in, which a reader picks once for the whole site. A code
 // block is for one of them when its language is, or when its info string says so with
-// for="go" or for="rust", as a shell command that installs limu does.
-const languages = [{ id: 'go', title: 'Go' }, { id: 'rust', title: 'Rust' }];
+// for="go" or for="rust", as a shell command that installs limu does. Rust's tab comes
+// first.
+const languages = [{ id: 'rust', title: 'Rust' }, { id: 'go', title: 'Go' }];
 const languageOf = (node) => {
   const id = metaValue(node, 'for') ?? node.lang;
   return languages.some((l) => l.id === id) ? id : undefined;

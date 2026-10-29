@@ -57,8 +57,9 @@ website under its MIT license, which `PELE-LICENSE` holds.
 
 As on Pele's site, a sidebar lists the pages, from the home page (Introduction) to the
 documents, and on a narrow screen they're in a menu. The mark and the name head the
-sidebar, with the playground's button below them. The switch between Go and Rust, the
-GitHub link and the switch between light and dark are in the top right corner. The footer
+sidebar, with the switch between Rust and Go after the name and the playground's button
+below them. The GitHub link and the switch between light and dark are in the top right
+corner. The footer
 lists the pages again in four groups, Start, Guides, Backends and Project. There is no search, and no page comparing limu with Pele
 or Mermaid, since limu matches Pele number for number.
 
@@ -66,8 +67,9 @@ or Mermaid, since limu matches Pele number for number.
 
 The site is one site for both ports. They lay diagrams out alike and differ in their API
 and their backends, so each page is written once, and what differs is written for each
-language. A reader picks the language once, Go or Rust, in the header or in the switch above
-any example, and the whole site follows. Go is the language until another is picked. The
+language. A reader picks the language once, Rust or Go, in the switch after the site's name or
+in the one above any example, and the whole site follows. Each switch lists Rust first. Go
+is the language until another is picked. The
 choice is kept in the browser as `limu-lang`, and a script in the head sets it on the root
 as `data-lang` before the page is drawn, so the page never shows the other language first.
 CSS hides whatever is marked for the other language. The links to the playground go to the
