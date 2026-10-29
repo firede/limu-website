@@ -3,18 +3,7 @@ title: "SVG"
 description: "Render diagrams as SVG, style them with CSS variables, and handle untrusted input."
 ---
 
-The SVG backend, `go:svg` `rust:limu::scene::svg`, renders a scene as an SVG document that looks the way Pele draws it. Like the rest of limu, it uses only the standard library.
-
-```go
-sc, err := limu.Layout(src, nil)
-if err != nil {
-	return err
-}
-out := svg.Render(sc, &svg.Options{
-	Look:       style.Look{Theme: style.Kohu()},
-	FontFamily: "Arial, Helvetica, sans-serif",
-})
-```
+The SVG backend, `rust:limu::scene::svg` `go:svg`, renders a scene as an SVG document that looks the way Pele draws it. Like the rest of limu, it uses only the standard library.
 
 ```rust
 use limu::scene::style::{Look, Theme};
@@ -31,30 +20,41 @@ let out = svg::render(
 );
 ```
 
+```go
+sc, err := limu.Layout(src, nil)
+if err != nil {
+	return err
+}
+out := svg.Render(sc, &svg.Options{
+	Look:       style.Look{Theme: style.Kohu()},
+	FontFamily: "Arial, Helvetica, sans-serif",
+})
+```
+
 ## Options
 
 | Field | What it does |
 | --- | --- |
-| `go:Look` `rust:look` | Sets the theme and overrides. See [Theming](/theming). |
-| `go:Literal` `rust:literal` | Writes theme colors as plain colors instead of CSS variables. |
-| `go:FontFamily, MonoFamily` `rust:font_family, mono_family` | Name the fonts the scene was measured with. They default to `sans-serif` and `monospace`. |
-| `go:LinkSchemes, ImageSchemes` `rust:link_schemes, image_schemes` | Set the URL schemes that links and images may use besides relative URLs. See [Untrusted diagrams](#untrusted-diagrams). |
-| `go:IconMarkup` `rust:icon_markup` | Returns the markup for an icon by name. See [Icons](#icons). |
-| `go:Draw` `rust:render_with` | Writes each item in place of the default. In Rust, it's a function of its own rather than an option. See [Custom drawing](#custom-drawing). |
+| `rust:look` `go:Look` | Sets the theme and overrides. See [Theming](/theming). |
+| `rust:literal` `go:Literal` | Writes theme colors as plain colors instead of CSS variables. |
+| `rust:font_family, mono_family` `go:FontFamily, MonoFamily` | Name the fonts the scene was measured with. They default to `sans-serif` and `monospace`. |
+| `rust:link_schemes, image_schemes` `go:LinkSchemes, ImageSchemes` | Set the URL schemes that links and images may use besides relative URLs. See [Untrusted diagrams](#untrusted-diagrams). |
+| `rust:icon_markup` `go:IconMarkup` | Returns the markup for an icon by name. See [Icons](#icons). |
+| `rust:render_with` `go:Draw` | Writes each item in place of the default. In Rust, it's a function of its own rather than an option. See [Custom drawing](#custom-drawing). |
 
 ### Fonts
 
 Layout measures text with Arial's widths unless you give it another measurer. The SVG has to use the same fonts the text was measured with, or labels won't fit their shapes. With the default measurer, use Arial or a font of the same width.
-
-```go
-svg.Render(sc, &svg.Options{FontFamily: "Arial, Helvetica, sans-serif"})
-```
 
 ```rust
 svg::render(&scene, &svg::Options {
     font_family: Some("Arial, Helvetica, sans-serif".into()),
     ..Default::default()
 })
+```
+
+```go
+svg.Render(sc, &svg.Options{FontFamily: "Arial, Helvetica, sans-serif"})
 ```
 
 If a page sets `--limu-font` or `--limu-font-mono`, those take precedence. A page that measures text in its own font can use them to set the SVG in that font too.
@@ -87,21 +87,21 @@ The SVG writes each theme color as a CSS variable with the theme's color as the 
 
 | Variable | Token |
 | --- | --- |
-| `--limu-bg` | `go:Bg` `rust:bg` |
-| `--limu-fg` | `go:Fg` `rust:fg` |
-| `--limu-muted` | `go:Muted` `rust:muted` |
-| `--limu-line` | `go:Line` `rust:line` |
-| `--limu-surface` | `go:Surface` `rust:surface` |
-| `--limu-surface-alt` | `go:SurfaceAlt` `rust:surface_alt` |
-| `--limu-border` | `go:Border` `rust:border` |
-| `--limu-accent` | `go:Accent` `rust:accent` |
-| `--limu-critical` | `go:Critical` `rust:critical` |
-| `--limu-series-1` … `--limu-series-8` | `go:Series(0) … Series(7)` `rust:series(0) … series(7)` |
+| `--limu-bg` | `rust:bg` `go:Bg` |
+| `--limu-fg` | `rust:fg` `go:Fg` |
+| `--limu-muted` | `rust:muted` `go:Muted` |
+| `--limu-line` | `rust:line` `go:Line` |
+| `--limu-surface` | `rust:surface` `go:Surface` |
+| `--limu-surface-alt` | `rust:surface_alt` `go:SurfaceAlt` |
+| `--limu-border` | `rust:border` `go:Border` |
+| `--limu-accent` | `rust:accent` `go:Accent` |
+| `--limu-critical` | `rust:critical` `go:Critical` |
+| `--limu-series-1` … `--limu-series-8` | `rust:series(0) … series(7)` `go:Series(0) … Series(7)` |
 | `--limu-font`, `--limu-font-mono` | The fonts described above |
 
 [Theming](/theming#themes) lists the values of limu's themes. Colors that don't come from the theme, such as those a diagram's author sets, are written as plain colors and ignore the variables.
 
-An SVG shown through `<img>` or saved to a file can't see the page's variables, so it uses the fallbacks. Set `go:Literal` `rust:literal` for programs that read SVG but don't understand CSS variables.
+An SVG shown through `<img>` or saved to a file can't see the page's variables, so it uses the fallbacks. Set `rust:literal` `go:Literal` for programs that read SVG but don't understand CSS variables.
 
 ## Classes
 
@@ -132,19 +132,7 @@ For assistive technology, the diagram's `accTitle` and `accDescr` become its `<t
 
 ## Icons
 
-Labels can contain icons such as `fa:fa-car`, and flowchart nodes can show one. The icon markup option, `go:IconMarkup` `rust:icon_markup`, returns the markup that goes inside an icon's `<svg>` on a 24 by 24 grid. The markup should draw in `currentColor`, which is set to the item's text color. Layout leaves room in labels only for icons you report through the layout's icons option, `go:layout.Options.Icons` `rust:layout::Options::icons`, so give both the same set.
-
-```go
-icons := map[string]string{
-	"fa:fa-car": `<path d="M5 17h14v-5l-2-5H7l-2 5z" fill="currentColor"/>`,
-}
-sc, err := limu.Layout(src, &layout.Options{
-	Icons: func(name string) bool { _, ok := icons[name]; return ok },
-})
-out := svg.Render(sc, &svg.Options{
-	IconMarkup: func(name string) string { return icons[name] },
-})
-```
+Labels can contain icons such as `fa:fa-car`, and flowchart nodes can show one. The icon markup option, `rust:icon_markup` `go:IconMarkup`, returns the markup that goes inside an icon's `<svg>` on a 24 by 24 grid. The markup should draw in `currentColor`, which is set to the item's text color. Layout leaves room in labels only for icons you report through the layout's icons option, `rust:layout::Options::icons` `go:layout.Options.Icons`, so give both the same set.
 
 ```rust
 use std::collections::HashMap;
@@ -167,15 +155,21 @@ let out = svg::render(
 );
 ```
 
+```go
+icons := map[string]string{
+	"fa:fa-car": `<path d="M5 17h14v-5l-2-5H7l-2 5z" fill="currentColor"/>`,
+}
+sc, err := limu.Layout(src, &layout.Options{
+	Icons: func(name string) bool { _, ok := icons[name]; return ok },
+})
+out := svg.Render(sc, &svg.Options{
+	IconMarkup: func(name string) string { return icons[name] },
+})
+```
+
 Without icon markup, icons are left out. Architecture and tree view diagrams also have built-in icons, which need no markup.
 
 ## Custom drawing
-
-<div data-lang-only="go">
-
-`Draw` writes each item in place of the default, and `next` writes it the default way. The `svg.Writer` it receives can write the default pieces with `Item`, `Parts`, `Ends`, `Picture` and `Label`, and your own markup with `Raw`, escaped text with `Text`, and numbers with `Num`. The style it receives is cascaded from the look but not yet resolved to colors, so `Paint` and `PaintAttr` can still write theme colors as CSS variables.
-
-</div>
 
 <div data-lang-only="rust">
 
@@ -183,31 +177,11 @@ Without icon markup, icons are left out. Architecture and tree view diagrams als
 
 </div>
 
-```go
-svg.Render(sc, &svg.Options{
-	Look: look,
-	Draw: func(w *svg.Writer, it *scene.Item, s style.Style, next func()) {
-		if it.Kind != scene.Node {
-			next()
-			return
-		}
-		// Draw the node as a box of our own, and its label the default way.
-		b := it.Box
-		w.Raw(`<rect rx="8" x="`)
-		w.Num(b.X)
-		w.Raw(`" y="`)
-		w.Num(b.Y)
-		w.Raw(`" width="`)
-		w.Num(b.W)
-		w.Raw(`" height="`)
-		w.Num(b.H)
-		w.Raw(`"`)
-		w.PaintAttr("fill", s.Fill)
-		w.Raw(`/>`)
-		w.Label(it, s)
-	},
-})
-```
+<div data-lang-only="go">
+
+`Draw` writes each item in place of the default, and `next` writes it the default way. The `svg.Writer` it receives can write the default pieces with `Item`, `Parts`, `Ends`, `Picture` and `Label`, and your own markup with `Raw`, escaped text with `Text`, and numbers with `Num`. The style it receives is cascaded from the look but not yet resolved to colors, so `Paint` and `PaintAttr` can still write theme colors as CSS variables.
+
+</div>
 
 ```rust
 use limu::scene::Kind;
@@ -236,6 +210,32 @@ svg::render_with(&scene, &o, |p, it, s| {
 })
 ```
 
+```go
+svg.Render(sc, &svg.Options{
+	Look: look,
+	Draw: func(w *svg.Writer, it *scene.Item, s style.Style, next func()) {
+		if it.Kind != scene.Node {
+			next()
+			return
+		}
+		// Draw the node as a box of our own, and its label the default way.
+		b := it.Box
+		w.Raw(`<rect rx="8" x="`)
+		w.Num(b.X)
+		w.Raw(`" y="`)
+		w.Num(b.Y)
+		w.Raw(`" width="`)
+		w.Num(b.W)
+		w.Raw(`" height="`)
+		w.Num(b.H)
+		w.Raw(`"`)
+		w.PaintAttr("fill", s.Fill)
+		w.Raw(`/>`)
+		w.Label(it, s)
+	},
+})
+```
+
 ## Untrusted diagrams
 
 Diagram text sometimes comes from people you don't trust, for example in notes shared with your app. limu escapes all the text it writes, and it never writes scripts, event handlers or HTML. A `click` that calls a function is dropped. The rest is up to your app.
@@ -249,15 +249,9 @@ Diagrams can link parts to URLs and show images from URLs. Layout keeps a link o
 | Links | `http`, `https`, `mailto`, `tel` |
 | Images | `http`, `https` |
 
-`javascript:`, `data:` and `vbscript:` are always blocked, and so are network paths such as `//host/share`. Images make a network request when the SVG is displayed. To drop all links or all images, set `go:NoLinks` `go:NoImages` `rust:links: false` `rust:images: false` in the layout's options.
+`javascript:`, `data:` and `vbscript:` are always blocked, and so are network paths such as `//host/share`. Images make a network request when the SVG is displayed. To drop all links or all images, set `rust:links: false` `rust:images: false` `go:NoLinks` `go:NoImages` in the layout's options.
 
 Schemes are checked twice, once by layout using its link and image schemes, and again by the SVG backend using its own options as a final check. To allow another scheme, add it to both.
-
-```go
-schemes := []string{"http", "https", "mailto", "obsidian"}
-sc, err := limu.Layout(src, &layout.Options{LinkSchemes: schemes})
-out := svg.Render(sc, &svg.Options{LinkSchemes: schemes})
-```
 
 ```rust
 let schemes = ["http", "https", "mailto", "obsidian"];
@@ -272,6 +266,12 @@ let out = svg::render(
         ..Default::default()
     },
 );
+```
+
+```go
+schemes := []string{"http", "https", "mailto", "obsidian"}
+sc, err := limu.Layout(src, &layout.Options{LinkSchemes: schemes})
+out := svg.Render(sc, &svg.Options{LinkSchemes: schemes})
 ```
 
 Links are written as `<a href>` without a target. When the SVG is inline, the page decides how links open, just as it does for its own links.

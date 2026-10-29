@@ -1,7 +1,7 @@
 # limu's website
 
-The website at [limu.firede.com](https://limu.firede.com), for limu in Go and limu-rs in
-Rust, built with Astro and served by Cloudflare as a Worker of static assets.
+The website at [limu.firede.com](https://limu.firede.com), for limu-rs in Rust and limu in
+Go, built with Astro and served by Cloudflare as a Worker of static assets.
 [docs/website.md](docs/website.md) says what it holds and how it looks, and
 [AGENTS.md](AGENTS.md) has the rules for changing it.
 
@@ -70,4 +70,4 @@ changes.
 The site's layout, its navigation, its code blocks and their highlighting, and the Markdown
 each page is also served as, are adapted from [Pele's website](https://github.com/obsidianmd/pele/tree/main/website),
 under the MIT license that [PELE-LICENSE](PELE-LICENSE) holds. limu changed its colors, its
-type, its pages, and added highlighting for Go and Rust and a light theme.
+type, its pages, and added highlighting for Rust and Go and a light theme.

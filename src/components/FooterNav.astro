@@ -7,8 +7,8 @@ import { pageHref, repositoryUrl, rustRepositoryUrl, type DocsPageId } from '../
 const groups: { title: string; pages: DocsPageId[]; extra?: { title: string; href: string; external?: boolean; playground?: boolean }[] }[] = [
   { title: 'Start', pages: ['introduction', 'getting-started', 'examples'], extra: [{ title: 'Playground', href: '/playground', playground: true }] },
   { title: 'Guides', pages: ['api', 'theming', 'svg'] },
-  { title: 'Backends', pages: ['mygo', 'tiny-skia', 'core-graphics', 'gpui', 'terminal'] },
-  { title: 'Project', pages: ['architecture', 'compatibility'], extra: [{ title: 'limu on GitHub', href: repositoryUrl, external: true }, { title: 'limu-rs on GitHub', href: rustRepositoryUrl, external: true }] },
+  { title: 'Backends', pages: ['tiny-skia', 'core-graphics', 'gpui', 'terminal', 'mygo'] },
+  { title: 'Project', pages: ['architecture', 'compatibility'], extra: [{ title: 'limu-rs on GitHub', href: rustRepositoryUrl, external: true }, { title: 'limu on GitHub', href: repositoryUrl, external: true }] },
 ];
 const listed = (id: DocsPageId) => navPages.find((page) => page.id === id);
 ---

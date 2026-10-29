@@ -1,3 +1,3 @@
 export function formatPageTitle(title?: string): string {
-  return title ? `${title} · limu` : 'limu · Mermaid diagrams, laid out in Go and Rust';
+  return title ? `${title} · limu` : 'limu · Mermaid diagrams, laid out in Rust and Go';
 }
