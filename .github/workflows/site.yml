@@ -1,6 +1,6 @@
 name: site
 
-# Builds the website and the playground with it. A push to main deploys them to Cloudflare,
+# Builds the website and the playgrounds of Go and of Rust with it. A push to main deploys them to Cloudflare,
 # as does a run by hand from main. A pull request only builds them. Deploying needs the
 # repository's secret CLOUDFLARE_API_TOKEN: a token that may edit Workers (Cloudflare's
 # "Edit Cloudflare Workers" template).
@@ -23,6 +23,8 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
+      # limu-rs's playground is built for WebAssembly by the Rust the runner has.
+      - run: rustup target add wasm32-unknown-unknown
       - uses: pnpm/action-setup@v4
         with:
           version: 11.28.5

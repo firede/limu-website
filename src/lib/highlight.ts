@@ -3,7 +3,7 @@ import mermaidKeywordFile from '../generated/mermaid-keywords.json' with { type:
 // A longer line is left as it is, as highlighting it would cost more than it shows.
 const maxHighlightLineLength = 2_000;
 
-export type CodeLanguage = 'mermaid' | 'go' | 'ts' | 'shell' | 'css' | 'xml';
+export type CodeLanguage = 'mermaid' | 'go' | 'rust' | 'ts' | 'shell' | 'css' | 'xml';
 
 // Flat on purpose: CodeMirror's StreamLanguage copies editor state shallowly.
 export interface HighlightState {
@@ -20,6 +20,8 @@ export interface HighlightState {
   // read; '' before, or when it is no type limu reads.
   diagramType: string;
   declared: boolean;
+  // The end of a raw string of Rust that began on an earlier line, as "#, or '' outside one.
+  rawEnd: string;
 }
 
 export const createHighlightState = (): HighlightState => ({
@@ -34,6 +36,7 @@ export const createHighlightState = (): HighlightState => ({
   expectsPath: false,
   diagramType: '',
   declared: false,
+  rawEnd: '',
 });
 
 const escapeHtml = (value: string) => value
@@ -396,6 +399,96 @@ function highlightGoLine(line: string, state: HighlightState) {
   }).join('');
 }
 
+const rustKeyword = /^(?:as|async|await|break|const|continue|crate|dyn|else|enum|extern|fn|for|if|impl|in|let|loop|match|mod|move|mut|pub|ref|return|static|struct|super|trait|type|unsafe|where|while)$/;
+const rustBuiltinType = /^(?:bool|char|f32|f64|i8|i16|i32|i64|i128|isize|str|u8|u16|u32|u64|u128|usize|self|Self)$/;
+
+// Rust, as the documents show it, colored as Go is: keywords, strings, numbers and comments
+// in their colors, calls and macros as functions, and names in capitals, as Options, as
+// types, except a field named in a struct's literal. A constant in capitals, as KOHU, is a
+// constant. Other names stay in the text's color.
+function highlightRustLine(line: string, state: HighlightState) {
+  let output = '';
+  let rest = line;
+  if (state.comment) {
+    const end = line.indexOf('*/');
+    if (end < 0) return span('syn-comment', line);
+    state.comment = false;
+    output = span('syn-comment', line.slice(0, end + 2));
+    rest = line.slice(end + 2);
+  }
+  if (state.rawEnd) {
+    // Inside a raw string that began on an earlier line.
+    const end = rest.indexOf(state.rawEnd);
+    if (end < 0) return output + span('syn-string', rest);
+    output += span('syn-string', rest.slice(0, end)) + span('syn-punctuation', state.rawEnd);
+    rest = rest.slice(end + state.rawEnd.length);
+    state.rawEnd = '';
+  }
+  if (state.quote) {
+    // Inside a string that began on an earlier line.
+    const end = rest.search(/(?<!\\)"/);
+    if (end < 0) return output + span('syn-string', rest);
+    state.quote = false;
+    output += span('syn-string', rest.slice(0, end)) + span('syn-punctuation', '"');
+    rest = rest.slice(end + 1);
+  }
+  const tokens = rest.match(/\/\/.*$|\/\*[\s\S]*?(?:\*\/|$)|r#*"|"(?:\\.|[^"\\])*"?|'(?:\\.|[^'\\])'|'[A-Za-z_]\w*|#!?\[|\b(?:0[xX][\da-fA-F_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d+)?(?:[iuf](?:8|16|32|64|128|size))?)\b|[A-Za-z_]\w*|::|=>|->|\.\.=?|==|!=|<=|>=|&&|\|\||\s+|./g) ?? [];
+  for (let index = 0; index < tokens.length; index++) {
+    const token = tokens[index];
+    const next = () => tokens.slice(index + 1).find((candidate) => !/^\s+$/.test(candidate));
+    if (token.startsWith('//')) { output += span('syn-comment', token); continue; }
+    if (token.startsWith('/*')) {
+      if (!token.endsWith('*/')) state.comment = true;
+      output += span('syn-comment', token);
+      continue;
+    }
+    if (/^r#*"$/.test(token)) {
+      // A raw string runs to a quote followed by as many hashes as it began with.
+      const end = '"' + token.slice(1, -1);
+      const body = tokens.slice(index + 1).join('');
+      const close = body.indexOf(end);
+      output += span('syn-punctuation', token);
+      if (close < 0) {
+        state.rawEnd = end;
+        return output + span('syn-string', body);
+      }
+      output += span('syn-string', body.slice(0, close)) + span('syn-punctuation', end);
+      return output + highlightRustLine(body.slice(close + end.length), state);
+    }
+    if (token[0] === '"') {
+      if (token.length === 1 || token.at(-1) !== '"' || /(?<!\\)\\"$/.test(token)) state.quote = true;
+      output += quoted(token);
+      continue;
+    }
+    if (/^'.'$|^'\\/.test(token)) { output += quoted(token); continue; }
+    if (token[0] === "'") { output += span('syn-keyword', token); continue; }
+    if (token[0] === '#') {
+      // An attribute, as #[derive(Debug)], is shown as the language's.
+      const end = tokens.indexOf(']', index);
+      const attribute = end < 0 ? tokens.slice(index).join('') : tokens.slice(index, end + 1).join('');
+      output += span('syn-punctuation', attribute);
+      if (end < 0) return output;
+      index = end;
+      continue;
+    }
+    if (/^\d/.test(token)) { output += span('syn-number', token); continue; }
+    if (/^[A-Za-z_]/.test(token)) {
+      const after = next();
+      if (token === 'use' || token === 'extern') output += span('syn-import', token);
+      else if (/^(?:true|false|None|Some|Ok|Err)$/.test(token)) output += span('syn-constant', token);
+      else if (rustKeyword.test(token)) output += span('syn-keyword', token);
+      else if (after === '(' || after === '!') output += span('syn-function', token);
+      else if (rustBuiltinType.test(token)) output += span('syn-language', token);
+      else if (/^[A-Z][A-Z\d_]+$/.test(token)) output += span('syn-constant', token);
+      else if (/^[A-Z]/.test(token) && after !== ':') output += span('syn-type', token);
+      else output += span(undefined, token);
+      continue;
+    }
+    output += span(/^\s+$/.test(token) ? undefined : 'syn-punctuation', token);
+  }
+  return output;
+}
+
 function highlightShellLine(line: string, state: HighlightState) {
   // Keep shell words intact: paths, flags, and URLs are not identifiers.
   const tokens = line.match(/\s+|#.*$|&&|\|\||[|;&<>]+|\\$|(?:\\.|"(?:\\.|[^"\\])*"|'[^']*'|[^\s|;&<>"'\\])+|./g) ?? [];
@@ -527,6 +620,7 @@ function highlightXmlLine(line: string, state: HighlightState) {
 export function highlightLine(line: string, language: CodeLanguage, state: HighlightState = createHighlightState()) {
   if (line.length > maxHighlightLineLength) return escapeHtml(line);
   if (language === 'go') return highlightGoLine(line, state);
+  if (language === 'rust') return highlightRustLine(line, state);
   if (language === 'ts') return highlightTypeScriptLine(line, state);
   if (language === 'shell') return highlightShellLine(line, state);
   if (language === 'css') return highlightCssLine(line, state);

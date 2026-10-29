@@ -8,12 +8,14 @@
   },
   "scripts": {
     "gen": "go run ./gen",
-    "playground": "node scripts/playground.mjs",
+    "playground": "node scripts/playground.mjs && node scripts/playground-rust.mjs",
     "dev": "go run ./gen && ASTRO_TELEMETRY_DISABLED=1 astro dev",
     "build": "go run ./gen && ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
     "check": "go run ./gen && ASTRO_TELEMETRY_DISABLED=1 astro check",
-    "deploy": "pnpm playground && pnpm build && wrangler deploy"
+    "deploy": "pnpm playground && pnpm build && wrangler deploy",
+    "playground:go": "node scripts/playground.mjs",
+    "playground:rust": "node scripts/playground-rust.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.3",

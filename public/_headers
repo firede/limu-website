@@ -4,6 +4,6 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
-# scripts/playground.mjs names the playground's files by a hash of their content too.
-/playground/*
+# The scripts that build the playgrounds name their files by a hash of their content too.
+/assets/*
   Cache-Control: public, max-age=31536000, immutable

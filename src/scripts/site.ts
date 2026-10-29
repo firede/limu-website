@@ -248,9 +248,11 @@ function setupThemeSwitch() {
   });
 }
 
+import { setupLanguage } from './language';
 import { setupOutline } from './outline';
 
 setupOutline();
 setupMobileHeader();
 setupMobileDocsMenu();
 setupThemeSwitch();
+setupLanguage();

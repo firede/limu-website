@@ -1,0 +1,25 @@
+---
+// Links between the playground of each language, in the playground's bar. A link carries the
+// diagram in the page's address, so that the same diagram opens in the other.
+interface Props {
+  current: 'go' | 'rust';
+}
+
+const { current } = Astro.props;
+const links = [
+  { id: 'go', title: 'Go', href: '/playground' },
+  { id: 'rust', title: 'Rust', href: '/playground/rust' },
+];
+---
+
+<nav class="playground-languages" aria-label="Playground's language">
+  {links.map(({ id, title, href }) => (
+    <a href={href} aria-current={id === current ? 'page' : undefined} data-carry-hash>{title}</a>
+  ))}
+</nav>
+<script is:inline>
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[data-carry-hash]');
+    if (link && !link.hasAttribute('aria-current')) link.hash = window.location.hash;
+  });
+</script>

@@ -7,6 +7,7 @@ import { readFileSync, statSync } from 'node:fs';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeaderIcons from '../components/HeaderIcons.astro';
 import Mark from '../components/Mark.astro';
+import PlaygroundLanguages from '../components/PlaygroundLanguages.astro';
 import { exampleTypes } from '../lib/examples';
 
 interface Built {
@@ -38,6 +39,7 @@ const firstExample = exampleTypes.find((t) => t.type === 'flowchart')?.examples[
     <header class="playground-bar">
       <a class="wordmark" href="/" aria-label="limu home"><Mark size={18} />limu</a>
       <span class="playground-bar-title">Playground</span>
+      <PlaygroundLanguages current="go" />
       <nav class="playground-bar-links" aria-label="Main navigation">
         <a href="/examples">Examples</a>
         <a href="/getting-started">Docs</a>

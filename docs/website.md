@@ -153,7 +153,7 @@ would pass 32,000 characters gets no such link.
 `/playground` is the playground compiled to WebAssembly. It runs as an application of its
 own, filling the window under a narrow bar with the wordmark, links to the examples and the
 documents, and the header's icons, without the documents' layout. `pnpm playground`
-(`scripts/playground.mjs`) builds it into `public/playground`, which isn't committed, and
+(`scripts/playground.mjs`) builds it into `public/assets/playground/go`, which isn't committed, and
 writes the files' names and size to `src/generated/playground.json`. `pnpm build` doesn't
 build it, so a change to the documents doesn't compile it again, and fails if it hasn't
 been built. `pnpm run deploy` builds both and deploys them.

@@ -62,6 +62,11 @@ const socialImageAlt = 'limu, a diagram layout engine in Go, under the sea, with
         const theme = localStorage.getItem('limu-theme');
         if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
       } catch {}
+      // The language picked last, Go or Rust, which code and names are shown in.
+      try {
+        const lang = localStorage.getItem('limu-lang');
+        if (lang === 'go' || lang === 'rust') document.documentElement.dataset.lang = lang;
+      } catch {}
     </script>
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f1f6f5" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0c1618" />

@@ -1,6 +1,6 @@
 // Builds the playground for browsers: limumygo's examples/playground, at the version go.mod
 // requires it as a tool, compiled to WebAssembly, with Go's loader of it, wasm_exec.js, into
-// public/playground, each named by a hash of its content, so that the site can have browsers
+// public/assets/playground/go, each named by a hash of its content, so that the site can have browsers
 // keep them for good. It writes their names
 // and the WebAssembly's size to src/generated/playground.json, which the page that loads
 // them, src/pages/playground.astro, reads. Run it from the website directory when the
@@ -17,7 +17,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const maxSize = 24 * 1024 * 1024;
-const out = 'public/playground';
+const out = 'public/assets/playground/go';
 
 const tmp = mkdtempSync(join(tmpdir(), 'limu-playground-'));
 try {
@@ -44,8 +44,8 @@ try {
   writeFileSync(join(out, names.loader), loader);
   mkdirSync('src/generated', { recursive: true });
   writeFileSync('src/generated/playground.json', `${JSON.stringify({
-    wasm: `/playground/${names.wasm}`,
-    loader: `/playground/${names.loader}`,
+    wasm: `/assets/playground/go/${names.wasm}`,
+    loader: `/assets/playground/go/${names.loader}`,
     size: wasm.length,
   }, null, 2)}\n`);
   console.log(`playground: ${names.wasm}, ${(wasm.length / 1024 / 1024).toFixed(1)} MiB`);

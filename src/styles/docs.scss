@@ -287,3 +287,15 @@
 
   }
 }
+
+// The language of a page that only one language has, after its title in the navigation.
+.docs-toc-language {
+  margin-left: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  padding: 1px 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  vertical-align: 1px;
+}

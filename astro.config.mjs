@@ -14,12 +14,12 @@ const metaValue = (node, name) => {
   return match?.[1] ?? match?.[2] ?? match?.[3];
 };
 const codeBlockLabel = (node) => metaValue(node, 'title');
-const languageAliases = { golang: 'go', typescript: 'ts', js: 'ts', javascript: 'ts', bash: 'shell', sh: 'shell', html: 'xml', svg: 'xml' };
+const languageAliases = { golang: 'go', rs: 'rust', typescript: 'ts', js: 'ts', javascript: 'ts', bash: 'shell', sh: 'shell', html: 'xml', svg: 'xml' };
 const plainCode = (value) => value.split('\n').map((line, index) => `<span class="doc-code-line"><span class="doc-line-number" hidden>${index + 1}</span><span class="doc-code-source">${escapeHtml(line)}</span></span>`).join('');
 const renderCodeBlock = (node) => {
   const label = codeBlockLabel(node);
   const language = languageAliases[node.lang] ?? node.lang ?? 'text';
-  const highlighted = ['mermaid', 'go', 'ts', 'shell', 'css', 'xml'].includes(language) ? highlightCode(node.value, language) : plainCode(node.value);
+  const highlighted = ['mermaid', 'go', 'rust', 'ts', 'shell', 'css', 'xml'].includes(language) ? highlightCode(node.value, language) : plainCode(node.value);
   const caption = label
     ? `<figcaption><span>${escapeHtml(label)}</span><span class="doc-code-actions">${copyButton}</span></figcaption>`
     : copyButton;
@@ -45,6 +45,53 @@ const renderDiagram = (node) => {
   return `<figure class="diagram-figure">${title ? `<figcaption>${escapeHtml(title)}</figcaption>` : ''}<div class="${classes}">${inner}</div></figure>`;
 };
 
+// The languages limu is written in, which a reader picks once for the whole site. A code
+// block is for one of them when its language is, or when its info string says so with
+// for="go" or for="rust", as a shell command that installs limu does.
+const languages = [{ id: 'go', title: 'Go' }, { id: 'rust', title: 'Rust' }];
+const languageOf = (node) => {
+  const id = metaValue(node, 'for') ?? node.lang;
+  return languages.some((l) => l.id === id) ? id : undefined;
+};
+
+// Code blocks next to each other, each for another language, are one example written in
+// each, shown as tabs that follow the language the reader picked. The page's Markdown keeps
+// them one after another.
+const renderCodeTabs = (nodes) => {
+  const tabs = languages.filter((l) => nodes.some((n) => languageOf(n) === l.id))
+    .map((l) => `<button type="button" data-lang-tab="${l.id}" aria-pressed="false">${l.title}</button>`).join('');
+  const panels = nodes.map((n) => `<div class="code-tab-panel" data-lang-only="${languageOf(n)}">${renderCodeBlock(n)}</div>`).join('');
+  return `<div class="code-tabs" data-code-tabs><div class="segmented-control code-tabs-switch" style="--segment-count: ${nodes.length}" role="group" aria-label="Language">${tabs}</div>${panels}</div>`;
+};
+
+// Groups each run of code blocks for different languages into one node of tabs.
+const groupCodeTabs = (parent) => {
+  const out = [];
+  for (let i = 0; i < parent.children.length; i++) {
+    const run = [];
+    const seen = new Set();
+    for (let j = i; j < parent.children.length; j++) {
+      const node = parent.children[j];
+      const lang = node.type === 'code' && !drawsDiagram(node) ? languageOf(node) : undefined;
+      if (!lang || seen.has(lang)) break;
+      seen.add(lang);
+      run.push(node);
+    }
+    if (run.length > 1) {
+      out.push({ type: 'html', value: renderCodeTabs(run) });
+      i += run.length - 1;
+    } else {
+      out.push(parent.children[i]);
+    }
+  }
+  parent.children = out;
+};
+
+// Inline code written as `go:limu.Layout` or `rust:limu::layout` names a thing in one
+// language, and shows only while the reader reads that language. Two of them side by side
+// name the same thing in each.
+const inlineLanguage = /^(go|rust):(.+)$/s;
+
 function staticCodeBlocks() {
   return (tree) => {
     const visit = (node, parent, index) => {
@@ -59,6 +106,11 @@ function staticCodeBlocks() {
         };
       }
       if (node?.type === 'inlineCode' && parent && typeof index === 'number') {
+        const only = node.value.match(inlineLanguage);
+        if (only) {
+          parent.children[index] = { type: 'html', value: `<code class="code-word" data-lang-only="${only[1]}">${escapeHtml(only[2])}</code>` };
+          return;
+        }
         const highlighted = highlightInline(node.value);
         // A single short word, such as sans-serif, is kept on one line instead of breaking at a hyphen.
         const word = !/\s/.test(node.value) && node.value.length <= 32;
@@ -73,7 +125,10 @@ function staticCodeBlocks() {
         };
         return;
       }
-      if (Array.isArray(node?.children)) node.children.forEach((child, childIndex) => visit(child, node, childIndex));
+      if (Array.isArray(node?.children)) {
+        groupCodeTabs(node);
+        node.children.forEach((child, childIndex) => visit(child, node, childIndex));
+      }
     };
     visit(tree, undefined, undefined);
   };

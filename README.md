@@ -40,7 +40,7 @@ before Astro builds it:
 `scripts/playground.mjs`, which `pnpm playground` runs, compiles the playground,
 limumygo's `examples/playground` at the release `go.mod` requires, to WebAssembly, and writes:
 
-- `public/playground/playground.<hash>.wasm` and `wasm_exec.<hash>.js`, Go's loader of it,
+- `public/assets/playground/go/playground.<hash>.wasm` and `wasm_exec.<hash>.js`, Go's loader of it,
   named by their content, which `public/_headers` has browsers keep for good.
 - `src/generated/playground.json`: their names and the WebAssembly's size, which the page
   that loads them, `src/pages/playground.astro`, reads.

@@ -1,20 +1,28 @@
-export const siteDescription = 'limu is a diagram layout engine in Go. It reads Mermaid and leaves the drawing to your program.';
+export const siteDescription = 'limu is a diagram layout engine in Go and Rust. It reads Mermaid and leaves the drawing to your program.';
 export const repositoryUrl = 'https://github.com/firede/limu';
+export const rustRepositoryUrl = 'https://github.com/firede/limu-rs';
 export const modulePath = 'github.com/firede/limu';
 
 // The pages, in the order the navigation lists them. The home page and the examples are
-// pages of their own; the other pages have a Markdown source in content/docs.
+// pages of their own; the other pages have a Markdown source in content/docs. A page of a
+// backend that only one language has names it.
 export const docsPages = [
   { id: 'introduction', title: 'Introduction' },
   { id: 'examples', title: 'Examples' },
   { id: 'getting-started', title: 'Getting started' },
   { id: 'api', title: 'API' },
   { id: 'theming', title: 'Theming' },
-  { id: 'mygo', title: 'MyGo' },
   { id: 'svg', title: 'SVG' },
+  { id: 'mygo', title: 'MyGo', language: 'go' },
+  { id: 'tiny-skia', title: 'tiny-skia', language: 'rust' },
+  { id: 'core-graphics', title: 'Core Graphics', language: 'rust' },
+  { id: 'gpui', title: 'GPUI', language: 'rust' },
+  { id: 'terminal', title: 'Terminal', language: 'rust' },
   { id: 'architecture', title: 'Architecture' },
   { id: 'compatibility', title: 'Compatibility' },
 ] as const;
+
+export const languageTitles = { go: 'Go', rust: 'Rust' } as const;
 
 export type DocsPageId = typeof docsPages[number]['id'];
 

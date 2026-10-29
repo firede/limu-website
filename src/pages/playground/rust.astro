@@ -1,0 +1,222 @@
+---
+// The playground of limu-rs: its module and limu.js, which scripts/playground-rust.mjs builds
+// from the commit or tag limu-rs.json names, under a narrow bar as the Go playground has. The
+// page lays out the text as it is typed, and shows it as SVG, which takes the site's theme
+// from the --limu-* variables, as text for a terminal, or as its scene.
+import { readFileSync, statSync } from 'node:fs';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HeaderIcons from '../../components/HeaderIcons.astro';
+import Mark from '../../components/Mark.astro';
+import PlaygroundLanguages from '../../components/PlaygroundLanguages.astro';
+import { exampleTypes } from '../../lib/examples';
+
+interface Built {
+  wasm: string;
+  script: string;
+  size: number;
+}
+
+let built: Built;
+try {
+  built = JSON.parse(readFileSync('src/generated/playground-rust.json', 'utf8'));
+} catch {
+  throw new Error("limu-rs's playground is not built: run pnpm playground first.");
+}
+if (statSync(`public${built.wasm}`).size !== built.size) throw new Error(`public${built.wasm} is not the file scripts/playground-rust.mjs wrote.`);
+
+// The examples, as the Go playground's Examples menu has them, with the first flowchart as
+// the text the page opens without one in its address.
+const examples = exampleTypes.map((t) => ({ title: t.title, examples: t.examples.map((e) => ({ title: e.title, source: e.source })) }));
+const firstExample = exampleTypes.find((t) => t.type === 'flowchart')?.examples[0]?.source ?? '';
+---
+
+<BaseLayout title="Rust playground" description="Write a Mermaid diagram and see how limu-rs lays it out, as SVG, as text for a terminal, or as its scene.">
+  <div class="playground-page">
+    <header class="playground-bar">
+      <a class="wordmark" href="/" aria-label="limu home"><Mark size={18} />limu</a>
+      <span class="playground-bar-title">Playground</span>
+      <PlaygroundLanguages current="rust" />
+      <nav class="playground-bar-links" aria-label="Main navigation">
+        <a href="/examples">Examples</a>
+        <a href="/getting-started">Docs</a>
+      </nav>
+      <div class="site-header-actions">
+        <HeaderIcons />
+      </div>
+    </header>
+    <main class="playground-app rust-playground" data-rust-playground>
+      <div class="rust-playground-toolbar">
+        <label class="rust-playground-field">
+          <span class="visually-hidden">Example</span>
+          <select data-example>
+            <option value="">Examples</option>
+            {examples.map((t, i) => (
+              <optgroup label={t.title}>
+                {t.examples.map((e, j) => <option value={`${i}/${j}`}>{e.title}</option>)}
+              </optgroup>
+            ))}
+          </select>
+        </label>
+        <button type="button" class="rust-playground-button" data-share>Copy link</button>
+        <div class="segmented-control" style="--segment-count: 3" role="group" aria-label="View">
+          <button type="button" data-view="svg" aria-pressed="true">SVG</button>
+          <button type="button" data-view="text" aria-pressed="false">Text</button>
+          <button type="button" data-view="scene" aria-pressed="false">Scene</button>
+        </div>
+        <label class="rust-playground-field" data-for-view="text" hidden>
+          <span>Characters</span>
+          <select data-ascii>
+            <option value="0">Box drawing</option>
+            <option value="1">ASCII</option>
+          </select>
+        </label>
+        <label class="rust-playground-field" data-for-view="text" hidden>
+          <span>Columns</span>
+          <input type="number" min="20" max="400" value="80" data-columns />
+        </label>
+        <span class="rust-playground-status" data-status role="status">Loading limu-rs</span>
+        <button type="button" class="rust-playground-button" data-copy-output>Copy</button>
+      </div>
+      <div class="rust-playground-panes">
+        <div class="rust-playground-source">
+          <textarea data-source spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Mermaid source">{firstExample}</textarea>
+          <p class="rust-playground-error" data-error hidden title="Go to the error"></p>
+        </div>
+        <div class="rust-playground-out" data-out></div>
+      </div>
+    </main>
+  </div>
+  <script type="application/json" id="rust-playground-data" set:html={JSON.stringify({ script: built.script, wasm: built.wasm, examples }).replaceAll('<', '\\u003c')} />
+  <script is:inline type="module">
+    const data = JSON.parse(document.getElementById('rust-playground-data').textContent);
+    const { load, linkedSource, sourceHash } = await import(data.script);
+    const app = document.querySelector('[data-rust-playground]');
+    const $ = (selector) => app.querySelector(selector);
+    const source = $('[data-source]');
+    const out = $('[data-out]');
+    const error = $('[data-error]');
+    const status = $('[data-status]');
+    const example = $('[data-example]');
+
+    // The view and the text's options are kept in this browser, and the text in the page's
+    // address, as #source=…, as the Go playground and Pele's take it.
+    const o = { view: 'svg', ascii: false, columns: 80 };
+    try { Object.assign(o, JSON.parse(localStorage.getItem('limu-rust-playground') || '{}')); } catch {}
+    const keep = () => { try { localStorage.setItem('limu-rust-playground', JSON.stringify(o)); } catch {} };
+
+    let limu;
+    let last = null;
+    let errorAt = null;
+
+    function controls() {
+      app.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === o.view)));
+      app.querySelectorAll('[data-for-view]').forEach((l) => { l.hidden = l.dataset.forView !== o.view; });
+      $('[data-ascii]').value = o.ascii ? '1' : '0';
+      $('[data-columns]').value = String(o.columns);
+    }
+
+    function render() {
+      if (!limu) return;
+      const t = performance.now();
+      // The SVG's colors are the --limu-* variables, which the site's theme sets.
+      const r = limu.show(source.value, { view: o.view, theme: 'kohu', literal: false, ascii: o.ascii, columns: o.columns });
+      const ms = performance.now() - t;
+      if (r.error !== undefined) {
+        const placed = r.line && !/\bline \d/i.test(r.error);
+        error.textContent = (placed ? `Line ${r.line}, column ${r.column}: ` : '') + r.error;
+        error.hidden = false;
+        errorAt = r.line ? r : null;
+        out.classList.toggle('is-stale', last !== null);
+        if (last === null) out.replaceChildren(Object.assign(document.createElement('p'), { className: 'rust-playground-empty', textContent: 'Nothing to show until the error is mended.' }));
+        status.textContent = 'Error';
+        return;
+      }
+      error.hidden = true;
+      errorAt = null;
+      out.classList.remove('is-stale');
+      last = r.output;
+      status.textContent = `${r.diagram} · ${Math.round(r.width)} × ${Math.round(r.height)} · ${ms.toFixed(1)} ms`;
+      if (o.view === 'svg') {
+        const figure = document.createElement('div');
+        figure.className = 'rust-playground-svg';
+        // The SVG is limu-rs's own writing of the reader's text, which escapes the text and
+        // writes no script.
+        figure.innerHTML = r.output;
+        out.replaceChildren(figure);
+      } else {
+        const pre = document.createElement('pre');
+        pre.className = o.view === 'text' ? 'rust-playground-cells' : 'rust-playground-scene';
+        pre.textContent = r.output;
+        out.replaceChildren(pre);
+      }
+    }
+
+    let timer = 0;
+    source.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        render();
+        history.replaceState(null, '', sourceHash(source.value));
+        example.value = '';
+      }, 120);
+    });
+    // Tab indents rather than leaving the text.
+    source.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab' || e.shiftKey || e.metaKey || e.ctrlKey || e.altKey) return;
+      e.preventDefault();
+      document.execCommand('insertText', false, '  ');
+    });
+    // The error's line and column are counted as a text area counts, in UTF-16 code units.
+    error.addEventListener('click', () => {
+      if (!errorAt) return;
+      const lines = source.value.split('\n');
+      let at = 0;
+      for (let i = 0; i < errorAt.line - 1 && i < lines.length; i++) at += lines[i].length + 1;
+      at += Math.max(0, errorAt.column - 1);
+      source.focus();
+      source.setSelectionRange(at, at);
+    });
+    app.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => {
+      o.view = b.dataset.view;
+      last = null;
+      keep(); controls(); render();
+    }));
+    $('[data-ascii]').addEventListener('change', (e) => { o.ascii = e.target.value === '1'; keep(); render(); });
+    $('[data-columns]').addEventListener('change', (e) => {
+      o.columns = Math.min(400, Math.max(20, Number(e.target.value) || 80));
+      keep(); controls(); render();
+    });
+    example.addEventListener('change', () => {
+      const [i, j] = example.value.split('/').map(Number);
+      const chosen = data.examples[i]?.examples[j];
+      if (!chosen) return;
+      source.value = chosen.source;
+      history.replaceState(null, '', sourceHash(source.value));
+      render();
+    });
+    const flash = (button, text) => {
+      const was = button.textContent;
+      button.textContent = text;
+      setTimeout(() => { button.textContent = was; }, 1200);
+    };
+    $('[data-copy-output]').addEventListener('click', (e) => {
+      if (last === null) return;
+      navigator.clipboard.writeText(last).then(() => flash(e.target, 'Copied'), () => flash(e.target, 'Failed'));
+    });
+    $('[data-share]').addEventListener('click', (e) => {
+      history.replaceState(null, '', sourceHash(source.value));
+      navigator.clipboard.writeText(window.location.href).then(() => flash(e.target, 'Copied'), () => flash(e.target, 'Failed'));
+    });
+
+    const linked = linkedSource();
+    if (linked !== null) source.value = linked;
+    controls();
+    try {
+      limu = await load(data.wasm);
+      render();
+    } catch (e) {
+      status.textContent = 'Failed';
+      out.replaceChildren(Object.assign(document.createElement('p'), { className: 'rust-playground-empty', textContent: `limu-rs could not load (${e.message}). Reload the page to try again.` }));
+    }
+  </script>
+</BaseLayout>

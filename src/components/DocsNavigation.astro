@@ -1,6 +1,6 @@
 ---
 import { navPages } from '../lib/nav';
-import { pageHref, type DocsPageId, type Heading } from '../lib/site';
+import { languageTitles, pageHref, type DocsPageId, type Heading } from '../lib/site';
 
 interface Props {
   class?: string;
@@ -25,6 +25,7 @@ const nested = child !== undefined;
         aria-current={page.id === current && !nested ? 'page' : undefined}
       >
         {page.title}
+        {'language' in page && <span class="docs-toc-language">{languageTitles[page.language]}</span>}
       </a>
       {page.id === current && (nested || toc.length > 0) && (
         <div class:list={{ 'docs-toc-children': nested }}>

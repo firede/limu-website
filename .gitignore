@@ -3,6 +3,6 @@ dist/
 .astro/
 .wrangler/
 src/generated/
-public/playground/
+public/assets/
 go.work
 go.work.sum

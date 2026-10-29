@@ -150,3 +150,22 @@
 .code-word {
   white-space: nowrap;
 }
+
+// What is for one language shows only while the reader reads it. Go is read until Rust is
+// picked.
+html:not([data-lang="rust"]) [data-lang-only="rust"],
+html[data-lang="rust"] [data-lang-only="go"] {
+  display: none !important;
+}
+
+// An example written in each language, as tabs.
+.code-tabs {
+  margin: 28px 0;
+
+  .code-tabs-switch {
+    margin-bottom: 8px;
+  }
+  .doc-code {
+    margin: 0;
+  }
+}

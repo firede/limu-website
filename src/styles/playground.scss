@@ -174,3 +174,173 @@ html .mygo-menu-item.on {
 html .mygo-menu-separator {
   background: var(--line-hover);
 }
+
+// Links between the playgrounds of Go and of Rust, in the bar.
+.playground-languages {
+  display: inline-flex;
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  font-size: var(--font-size-small);
+
+  a {
+    border-radius: var(--radius-pill);
+    padding: 3px 10px;
+    color: var(--muted);
+    line-height: 1.3;
+    transition: color 150ms ease;
+
+    @media (hover: hover) {
+      &:hover {
+        color: var(--paper);
+      }
+    }
+    &[aria-current="page"] {
+      background: var(--line);
+      color: var(--paper);
+    }
+  }
+}
+
+// limu-rs's playground: a toolbar, and the text beside what limu-rs made of it, or above it
+// on a narrow screen.
+.rust-playground {
+  display: flex;
+  flex-direction: column;
+}
+.rust-playground-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  border-bottom: 1px solid var(--line);
+  padding: 6px 12px;
+  font-size: var(--font-size-small);
+
+  select, input {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-small);
+    background: var(--ink);
+    padding: 3px 6px;
+    color: var(--paper);
+    font: inherit;
+  }
+  input[type="number"] {
+    width: 4.5em;
+  }
+}
+.rust-playground-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+
+  &[hidden] {
+    display: none;
+  }
+}
+.rust-playground-button {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: transparent;
+  padding: 3px 9px;
+  color: var(--paper);
+  font: inherit;
+  cursor: pointer;
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--panel);
+    }
+  }
+}
+.rust-playground-status {
+  margin-left: auto;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.rust-playground-panes {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: 42% 1fr;
+  min-height: 0;
+}
+.rust-playground-source {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--line);
+
+  textarea {
+    flex: 1 1 auto;
+    min-height: 0;
+    resize: none;
+    border: 0;
+    outline: 0;
+    background: var(--ink);
+    padding: 12px 16px;
+    color: var(--body);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 20px;
+    tab-size: 2;
+  }
+}
+.rust-playground-error {
+  overflow: auto;
+  max-height: 40%;
+  margin: 0;
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+  padding: 8px 16px;
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  cursor: pointer;
+}
+.rust-playground-out {
+  overflow: auto;
+  min-width: 0;
+  padding: 20px;
+
+  &.is-stale {
+    opacity: 0.45;
+  }
+  pre {
+    margin: 0;
+    color: var(--body);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  // Text drawn in box-drawing characters is set at the font's own line height, which their
+  // lines are drawn to fill, so that lines down meet from row to row.
+  .rust-playground-cells {
+    font-family: ui-monospace, Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    line-height: normal;
+  }
+}
+.rust-playground-svg svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.rust-playground-empty {
+  margin: 0;
+  color: var(--muted);
+}
+@media (max-width: 639px) {
+  .rust-playground-panes {
+    grid-template-columns: 1fr;
+    grid-template-rows: 40% 1fr;
+  }
+  .rust-playground-source {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}
+@media (max-width: 720px) {
+  .playground-bar-title {
+    display: none;
+  }
+}
