@@ -81,12 +81,10 @@ out := svg.Render(sc, &svg.Options{Look: style.Look{Theme: style.Kohu()}})
 
 ### Rust
 
-limu-rs isn't released yet, so its crates are added from its repository.
-
 #### GPUI
 
 ```shell
-cargo add limu limu-gpui --git https://github.com/firede/limu-rs
+cargo add limu limu-gpui
 ```
 
 limu-gpui paints a scene in a GPUI window, on the GPU with the rest of the window, and measures its text with GPUI's text system. The scene tells you which part is under the pointer.
@@ -108,7 +106,7 @@ if let Some(i) = scene.item_at(at, 4.0) {
 #### tiny-skia
 
 ```shell
-cargo add limu limu-tiny-skia --git https://github.com/firede/limu-rs
+cargo add limu limu-tiny-skia
 ```
 
 limu-tiny-skia draws a scene into a bitmap, in font files your program carries, with no GPU and no system libraries. Lay out the diagram with the same fonts you draw it in.
@@ -130,7 +128,7 @@ pixmap.save_png("diagram.png")?;
 #### Terminal
 
 ```shell
-cargo add limu limu-ascii --git https://github.com/firede/limu-rs
+cargo add limu limu-ascii
 ```
 
 limu-ascii lays a diagram out in a terminal's cells and draws it in box-drawing characters, or in ASCII alone.
@@ -152,7 +150,7 @@ print!("{}", limu_ascii::render(&scene, &Options::default())?);
 #### SVG
 
 ```shell
-cargo add limu --git https://github.com/firede/limu-rs
+cargo add limu
 ```
 
 limu::scene::svg writes a scene as SVG and leaves its colors as CSS variables, so a page can restyle it. limu uses only Rust's standard library.

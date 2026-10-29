@@ -5,15 +5,14 @@ description: "Draw diagrams with Core Graphics on Apple's platforms, and measure
 
 The limu-coregraphics crate draws limu's scenes with Core Graphics, into a `CGContext` your app gives it or into a `CGImage` it makes. Text is shaped by Core Text, as the rest of an app's text is on Apple's platforms, so a diagram uses the system's fonts or the fonts your app carries. It suits apps on macOS and iOS that draw in views of their own, through AppKit, UIKit or another toolkit that hands out a `CGContext`.
 
-limu-rs is not released yet, and its API may change before 0.1.
+limu-rs is young, and its API will change in any 0.x release.
 
 ## Installing
 
-limu-coregraphics is a crate of its own, which keeps limu and limu-scene free of anything beyond Rust's standard library. limu-rs isn't on crates.io yet, so add both crates from its repository.
+limu-coregraphics is a crate of its own, which keeps limu and limu-scene free of anything beyond Rust's standard library. Add both crates.
 
 ```shell
-cargo add limu --git https://github.com/firede/limu-rs
-cargo add limu-coregraphics --git https://github.com/firede/limu-rs
+cargo add limu limu-coregraphics
 ```
 
 The crate calls Core Graphics and Core Text through objc2's bindings, and re-exports them as `limu_coregraphics::objc2_core_foundation`, `objc2_core_graphics` and `objc2_core_text`. It is empty on platforms other than Apple's, so a project that builds for other platforms too can depend on it everywhere. The examples below use `limu::scene`, which is the limu-scene crate as limu re-exports it.

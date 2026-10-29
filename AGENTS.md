@@ -9,7 +9,7 @@ Read docs/website.md first. It says what the site holds, how it looks, and how i
   releases of limu that `gen` and the Go playground are built from. Don't add a `replace` to
   it. A `go.work`, which git ignores, is how the site is built with an unreleased limu on
   one's own machine. `limu-rs.json` names the tag of limu-rs the Rust playground is built
-  from, and names a commit only until limu-rs's first release. `LIMU_RS` builds the Rust
+  from. `LIMU_RS` builds the Rust
   playground from a local checkout instead.
 - When limu, limumygo or limu-rs is released, follow the release as README.md says. Read
   what changed since the release before it, and change the documents that describe what

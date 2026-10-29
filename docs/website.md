@@ -22,9 +22,7 @@ hasn't followed shows as a failed check. To build the site with an unreleased li
 `go work init . ../limu ../limu/limumygo`. Git ignores it.
 
 limu-rs is shown the same way. `limu-rs.json` names the repository and the tag the Rust
-playground is built from, and the daily check fails when limu-rs has a newer tag. limu-rs
-has no release yet, so it names a commit until its first, and the check passes while it
-does. `LIMU_RS`, set to a checkout, builds the Rust playground from that checkout instead.
+playground is built from, and the daily check fails when limu-rs has a newer tag. `LIMU_RS`, set to a checkout, builds the Rust playground from that checkout instead.
 The diagrams the site draws are drawn by limu in Go. limu-rs lays them out to the same bit,
 so the site doesn't draw them twice.
 
@@ -232,8 +230,8 @@ WebAssembly passes 24 MiB. Past 25 MiB, it would have to be served from R2.
 
 `/playground/rust` is limu-rs's playground. limu-rs builds it from its `limu-playground`
 crate, a module of WebAssembly with no imports, and `limu.js`, the script a page calls it
-through. The site builds both with limu-rs's own `scripts/playground.sh`, at the commit or
-tag `limu-rs.json` names (`scripts/playground-rust.mjs`), into
+through. The site builds both with limu-rs's own `scripts/playground.sh`, at the tag
+`limu-rs.json` names (`scripts/playground-rust.mjs`), into
 `public/assets/playground/rust`. The page is written by the site, under the same narrow bar.
 It has the text, an Examples menu of limu's gallery, a link to share, and the diagram as SVG,
 as text for a terminal, or as its scene. The SVG is inlined with the `--limu-*` variables,
@@ -246,7 +244,7 @@ diagram from `#source=…`, and the links in their bars move between them with t
 | Page | What it covers |
 |---|---|
 | Getting started | Installing, then laying out and rendering SVG, which need only the standard library. Parsing once and laying out many times, as when the width changes. Listing and checking the types, and in Rust, the feature of each type. |
-| API | The packages of limu, or the crates of limu-rs. The parsing options, with the configuration and the limits, and what to set them to for untrusted text. The error codes. The layout options. The scene, in enough detail to walk it. Measuring text with a measurer and the table of Arial's widths. The Go page links to pkg.go.dev rather than repeating it, and limu-rs, not yet on crates.io, to `cargo doc`. |
+| API | The packages of limu, or the crates of limu-rs. The parsing options, with the configuration and the limits, and what to set them to for untrusted text. The error codes. The layout options. The scene, in enough detail to walk it. Measuring text with a measurer and the table of Arial's widths. The Go page links to pkg.go.dev rather than repeating it, and limu-rs's to docs.rs. |
 | Theming | The three levels of style, with the tokens and values of Kohu, KohuDark and Pele's theme, overrides by role, and a backend's own drawing. Styles an author writes in the diagram with `classDef` and `style`. |
 | SVG | The SVG backend and its options, the fonts, icon markup, and drawing items with a function of one's own. Setting the `--limu-*` variables in a page. Untrusted diagrams, with the schemes links and images may use and where icon markup comes from. |
 | MyGo | Go alone. Installing limumygo. `View`, and finding the item under the pointer with `ItemAt`. `Paint` on a `Painter`. `Fonts`, which measure and draw in the same fonts. `DrawIcon` and `DrawImage`. The editor's language in `limumygo/mermaid`. Running in a browser. limumygo loads no image and follows no link, and the host decides through `DrawImage` and the pointer's events. |

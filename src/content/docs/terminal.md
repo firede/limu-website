@@ -5,15 +5,14 @@ description: "Draw diagrams as text in box-drawing characters or ASCII, for term
 
 The limu-ascii crate draws limu's scenes as text, in a grid of cells the size of a terminal's. Lines are drawn in Unicode's box-drawing characters, or in ASCII for terminals that have no more. Use it to show a diagram in a command-line tool, in a terminal UI, or anywhere else a diagram has to be plain text.
 
-limu-rs is not released yet, and its API may change before 0.1.
+limu-rs is young, and its API will change in any 0.x release.
 
 ## Installing
 
-limu-ascii is a crate of its own, which keeps limu and limu-scene free of anything beyond Rust's standard library. It depends on unicode-width, to count the cells a character takes. limu-rs isn't on crates.io yet, so add both crates from its repository.
+limu-ascii is a crate of its own, which keeps limu and limu-scene free of anything beyond Rust's standard library. It depends on unicode-width, to count the cells a character takes. Add both crates.
 
 ```shell
-cargo add limu --git https://github.com/firede/limu-rs
-cargo add limu-ascii --git https://github.com/firede/limu-rs
+cargo add limu limu-ascii
 ```
 
 ## Drawing a diagram as text

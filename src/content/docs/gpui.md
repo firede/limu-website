@@ -5,18 +5,18 @@ description: "Paint diagrams in GPUI windows, measure their text with GPUI's tex
 
 The limu-gpui crate paints limu's scenes in [GPUI](https://www.gpui.rs) windows, the UI framework Zed is built with. A scene is painted during an element's paint phase, on the GPU along with the rest of the window. Text is measured and set by GPUI's own text system, so a diagram uses your app's fonts. limu-scene finds the item under the pointer, so a diagram in a window can answer clicks.
 
-limu-rs is not released yet, and its API may change before 0.1.
+limu-rs is young, and its API will change in any 0.x release.
 
 ## Installing
 
-limu-gpui builds on [gpui-fast](https://github.com/longbridge/gpui-fast) 0.1.12, a fork of Zed's GPUI published on crates.io, and your app needs the same. gpui-fast asks to be named `gpui` in `Cargo.toml`, so the paths its macros write resolve. On macOS, GPUI sets text only with the `font-kit` feature of gpui-fast-platform. Without it every glyph is missing. limu-rs isn't on crates.io yet, so add limu and limu-gpui from its repository.
+limu-gpui builds on [gpui-fast](https://github.com/longbridge/gpui-fast) 0.1.12, a fork of Zed's GPUI published on crates.io, and your app needs the same. gpui-fast asks to be named `gpui` in `Cargo.toml`, so the paths its macros write resolve. On macOS, GPUI sets text only with the `font-kit` feature of gpui-fast-platform. Without it every glyph is missing.
 
 ```toml
 [dependencies]
 gpui = { package = "gpui-fast", version = "0.1.12" }
 gpui_platform = { package = "gpui-fast-platform", version = "0.1.12", features = ["font-kit"] }
-limu = { git = "https://github.com/firede/limu-rs" }
-limu-gpui = { git = "https://github.com/firede/limu-rs" }
+limu = "0.1"
+limu-gpui = "0.1"
 ```
 
 In limu-rs's repository, limu-gpui is a workspace of its own, in `crates/limu-gpui`. GPUI takes long to build and builds only where it has a platform, so the other crates' checks leave it out. The examples below use `limu::scene`, which is the limu-scene crate as limu re-exports it.

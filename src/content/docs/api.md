@@ -24,7 +24,7 @@ Every package except `limumygo` uses only Go's standard library.
 
 <div data-lang-only="rust">
 
-limu-rs is split into a few crates. `limu` reads and lays out diagrams, `limu-scene` holds what a backend needs to draw them, and each backend is a crate of its own. This page explains what each part is for and when you need it. limu-rs isn't on crates.io yet, so `cargo doc --open` in a project that uses it is how to read every name in full.
+limu-rs is split into a few crates. `limu` reads and lays out diagrams, `limu-scene` holds what a backend needs to draw them, and each backend is a crate of its own. This page explains what each part is for and when you need it. [docs.rs](https://docs.rs/limu) documents every name in full.
 
 | Crate or module | What it does |
 | --- | --- |

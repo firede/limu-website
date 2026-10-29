@@ -1,8 +1,7 @@
 #!/bin/sh
 # Checks that the site follows the latest releases of limu and limumygo, which go.mod
 # requires, and of limu-rs, whose tag limu-rs.json names, and fails, naming each release it
-# doesn't follow, when it doesn't. Until limu-rs has a release, limu-rs.json names a commit,
-# which is then not behind.
+# doesn't follow, when it doesn't.
 set -eu
 cd "$(dirname "$0")/.."
 behind=$(go list -m -u -f '{{if .Update}}{{.Path}} {{.Version}}, released {{.Update.Version}}{{end}}' \

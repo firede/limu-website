@@ -5,15 +5,14 @@ description: "Draw diagrams into bitmaps and PNGs with tiny-skia, in fonts your 
 
 The limu-tiny-skia crate draws limu's scenes into [tiny-skia](https://github.com/linebender/tiny-skia) pixmaps, which it can save as PNGs. It needs no GPU and no system libraries, so it runs on servers, in command-line tools and anywhere else Rust builds. Text is shaped with [rustybuzz](https://github.com/harfbuzz/rustybuzz) in font files your program gives it, so a diagram comes out the same on every machine. limu-rs also uses it to draw the golden images that check its default drawing.
 
-limu-rs is not released yet, and its API may change before 0.1.
+limu-rs is young, and its API will change in any 0.x release.
 
 ## Installing
 
-limu-tiny-skia is a crate of its own, which keeps limu and limu-scene free of anything beyond Rust's standard library. limu-rs isn't on crates.io yet, so add both crates from its repository.
+limu-tiny-skia is a crate of its own, which keeps limu and limu-scene free of anything beyond Rust's standard library. Add both crates.
 
 ```shell
-cargo add limu --git https://github.com/firede/limu-rs
-cargo add limu-tiny-skia --git https://github.com/firede/limu-rs
+cargo add limu limu-tiny-skia
 ```
 
 limu-tiny-skia re-exports the tiny-skia it draws with as `limu_tiny_skia::tiny_skia`, so you don't need to match its version. The examples below use `limu::scene`, which is the limu-scene crate as limu re-exports it.

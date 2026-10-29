@@ -18,7 +18,7 @@ pnpm run deploy  # builds the playgrounds and the site, and deploys them with wr
 
 A push to main deploys the site, through `.github/workflows/site.yml`. The site shows
 releases. `go.mod` requires the releases of limu and limumygo it shows, and
-`limu-rs.json` names the tag of limu-rs. Until limu-rs has a release, it names a commit.
+`limu-rs.json` names the tag of limu-rs it shows.
 `.github/workflows/releases.yml` fails each day that a release is left behind.
 
 To follow a new release of limu, run

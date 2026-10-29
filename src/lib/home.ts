@@ -49,7 +49,7 @@ out := svg.Render(sc, &svg.Options{Look: style.Look{Theme: style.Kohu()}})`,
     language: 'rust',
     id: 'gpui',
     title: 'GPUI',
-    command: 'cargo add limu limu-gpui --git https://github.com/firede/limu-rs',
+    command: 'cargo add limu limu-gpui',
     note: 'limu-gpui paints a scene in a GPUI window, on the GPU with the rest of the window, and measures its text with GPUI’s text system. The scene tells you which part is under the pointer.',
     code: `// Measure text with the window's text system.
 let measurer = TextMeasurer::new(window, Fonts::default());
@@ -74,7 +74,7 @@ if let Some(i) = scene.item_at(at, 4.0) {
     language: 'rust',
     id: 'tiny-skia',
     title: 'tiny-skia',
-    command: 'cargo add limu limu-tiny-skia --git https://github.com/firede/limu-rs',
+    command: 'cargo add limu limu-tiny-skia',
     note: 'limu-tiny-skia draws a scene into a bitmap, in font files your program carries, with no GPU and no system libraries. Lay out the diagram with the same fonts you draw it in.',
     code: `let fonts = Fonts::new(std::fs::read("Inter-Regular.ttf")?)?;
 let layout = limu::layout::Options {
@@ -95,7 +95,7 @@ pixmap.save_png("diagram.png")?;`,
     language: 'rust',
     id: 'terminal',
     title: 'Terminal',
-    command: 'cargo add limu limu-ascii --git https://github.com/firede/limu-rs',
+    command: 'cargo add limu limu-ascii',
     note: 'limu-ascii lays a diagram out in a terminal’s cells and draws it in box-drawing characters, or in ASCII alone.',
     code: `let cells = Cells::default();
 let layout = limu::layout::Options {
@@ -113,7 +113,7 @@ print!("{}", limu_ascii::render(&scene, &Options::default())?);`,
     language: 'rust',
     id: 'rust-svg',
     title: 'SVG',
-    command: 'cargo add limu --git https://github.com/firede/limu-rs',
+    command: 'cargo add limu',
     note: 'limu::scene::svg writes a scene as SVG and leaves its colors as CSS variables, so a page can restyle it. limu uses only Rust’s standard library.',
     code: `let scene = limu::layout(src, &Default::default())?;
 let out = svg::render(&scene, &svg::Options {

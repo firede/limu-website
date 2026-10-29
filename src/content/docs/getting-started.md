@@ -12,7 +12,7 @@ go get github.com/firede/limu
 ```
 
 ```shell for="rust"
-cargo add limu --git https://github.com/firede/limu-rs
+cargo add limu
 ```
 
 <div data-lang-only="go">
@@ -23,7 +23,7 @@ limu needs Go 1.27 or later.
 
 <div data-lang-only="rust">
 
-limu-rs needs Rust 1.95 or later. It isn't released yet, so it's installed from its repository, and its API may still change before its first release.
+limu-rs needs Rust 1.95 or later. It's young, and its API will change in any 0.x release.
 
 </div>
 
