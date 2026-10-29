@@ -1,6 +1,6 @@
-// The language a reader reads limu in, Go or Rust, picked once for the whole site. The
+// The language a reader reads limu in, Rust or Go, picked once for the whole site. The
 // script in BaseLayout's head sets it on the root, as data-lang, before the page is drawn,
-// and CSS shows only what is for it. Go is the language until another is picked.
+// and CSS shows only what is for it. Rust is the language until another is picked.
 
 import { repositoryUrl, rustRepositoryUrl } from '../lib/site';
 
@@ -8,7 +8,7 @@ export type Language = 'go' | 'rust';
 
 const storageKey = 'limu-lang';
 
-export const currentLanguage = (): Language => (document.documentElement.dataset.lang === 'rust' ? 'rust' : 'go');
+export const currentLanguage = (): Language => (document.documentElement.dataset.lang === 'go' ? 'go' : 'rust');
 
 // The playground of a language: limumygo's for Go, and limu-rs's for Rust.
 export const playgroundPath = (language: Language) => (language === 'rust' ? '/playground/rust' : '/playground');

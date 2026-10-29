@@ -62,7 +62,8 @@ const socialImageAlt = 'limu, a diagram layout engine in Rust and Go, under the 
         const theme = localStorage.getItem('limu-theme');
         if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
       } catch {}
-      // The language picked last, Go or Rust, which code and names are shown in.
+      // The language picked last, Rust or Go, which code and names are shown in. Rust is shown
+      // until one is picked.
       try {
         const lang = localStorage.getItem('limu-lang');
         if (lang === 'go' || lang === 'rust') document.documentElement.dataset.lang = lang;

@@ -26,7 +26,7 @@ const installGroups = (Object.keys(languageTitles) as (keyof typeof languageTitl
 
 const explore = [
   { href: '/examples', title: 'Examples', text: 'Every type of diagram limu supports, in each of its themes.' },
-  { href: '/playground', title: 'Playground', text: 'Write a diagram and see it laid out as you type.' },
+  { href: '/playground/rust', title: 'Playground', text: 'Write a diagram and see it laid out as you type.', playground: true },
   { href: '/getting-started', title: 'Getting started', text: 'Lay out your first diagram and render it as SVG.' },
   { href: '/theming', title: 'Theming', text: 'Change colors with themes and overrides, or draw parts yourself.' },
 ];
@@ -85,8 +85,8 @@ const explore = [
         <section class="home-section" aria-labelledby="explore">
           <h2 id="explore">Explore</h2>
           <nav class="guide-links" aria-label="Pages to start from">
-            {explore.map(({ href, title, text }) => (
-              <a class="guide-link-card" href={href}>
+            {explore.map(({ href, title, text, playground }) => (
+              <a class="guide-link-card" href={href} data-playground-link={playground ? '' : undefined}>
                 <h3>{title}</h3>
                 <p>{text}</p>
               </a>

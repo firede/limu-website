@@ -66,8 +66,9 @@ or Mermaid, since limu matches Pele number for number.
 The site is one site for both ports. They lay diagrams out alike and differ in their API
 and their backends, so each page is written once, and what differs is written for each
 language. A reader picks the language once, Rust or Go, in the switch after the site's name or
-in the one above any example, and the whole site follows. Each switch lists Rust first. Go
-is the language until another is picked. The
+in the one above any example, and the whole site follows. Each switch lists Rust first.
+Rust is the language until another is picked, and the links to the playground and to GitHub
+are Rust's in the page as built. The
 choice is kept in the browser as `limu-lang`, and a script in the head sets it on the root
 as `data-lang` before the page is drawn, so the page never shows the other language first.
 CSS hides whatever is marked for the other language. The links to the playground go to the

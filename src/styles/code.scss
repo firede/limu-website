@@ -151,21 +151,21 @@
   white-space: nowrap;
 }
 
-// What is for one language shows only while the reader reads it. Go is read until Rust is
+// What is for one language shows only while the reader reads it. Rust is read until Go is
 // picked.
-html:not([data-lang="rust"]) [data-lang-only="rust"],
-html[data-lang="rust"] [data-lang-only="go"] {
+html[data-lang="go"] [data-lang-only="rust"],
+html:not([data-lang="go"]) [data-lang-only="go"] {
   display: none !important;
 }
 
 // A switch of languages shows the language read before its script runs, from the root's
 // data-lang, which the head sets. Rust's tab comes first, and Go's second.
-html:not([data-lang="rust"]) [data-lang-tab="go"],
-html[data-lang="rust"] [data-lang-tab="rust"] {
+html[data-lang="go"] [data-lang-tab="go"],
+html:not([data-lang="go"]) [data-lang-tab="rust"] {
   color: var(--paper);
 }
-html:not([data-lang="rust"]) .segmented-control:has(> [data-lang-tab="go"]:nth-of-type(2)),
-html[data-lang="rust"] .segmented-control:has(> [data-lang-tab="rust"]:nth-of-type(2)) {
+html[data-lang="go"] .segmented-control:has(> [data-lang-tab="go"]:nth-of-type(2)),
+html:not([data-lang="go"]) .segmented-control:has(> [data-lang-tab="rust"]:nth-of-type(2)) {
   --selected-index: 1;
 }
 

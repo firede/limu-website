@@ -37,13 +37,15 @@ export const featured = (t: ExampleType): Example[] => {
   return marked.length > 0 ? marked : t.examples.slice(0, 1);
 };
 
-// The playground takes a diagram in its URL's fragment, as Pele's does; a source longer
-// than this is not offered, as a link that long is not one to share.
+// The playgrounds take a diagram in their URL's fragment, as Pele's does; a source longer
+// than this is not offered, as a link that long is not one to share. The link is to the
+// Rust playground, and goes to the playground of the language read once the page's script
+// runs.
 const maxPlaygroundHash = 32_000;
 
 export function playgroundHref(source: string): string | undefined {
   const hash = new URLSearchParams({ source }).toString();
-  return hash.length <= maxPlaygroundHash ? `/playground#${hash}` : undefined;
+  return hash.length <= maxPlaygroundHash ? `/playground/rust#${hash}` : undefined;
 }
 
 // A slug for a heading, from an example's title.
