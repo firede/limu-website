@@ -1,6 +1,7 @@
 // Command gen writes what the website shows of limu's own work, before Astro builds it: the
 // mark and the icon, the SVG of every example and of the diagrams the documents draw, by the
-// svg package, and the theme's colors as the --limu-* variables the SVG is drawn in. Run it from the website directory:
+// svg package, the theme's colors as the --limu-* variables the SVG is drawn in, and the words
+// of Mermaid that code blocks highlight. Run it from the repository's root:
 //
 //	go run ./gen
 package main
@@ -10,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -53,6 +55,7 @@ func main() {
 	write("src/generated/limu-theme.css", themeCSS())
 	write("src/generated/home.json", mustJSON(home()))
 	write("src/generated/docs-diagrams.json", mustJSON(docsDiagrams()))
+	write("src/generated/mermaid-keywords.json", mermaidKeywords())
 
 	types, failed := examples()
 	write("src/generated/examples.json", mustJSON(types))
@@ -65,6 +68,21 @@ func main() {
 		fmt.Printf(", %d left out as limu could not lay them out", failed)
 	}
 	fmt.Println()
+}
+
+// mermaidKeywords reads the words of Mermaid that the playground's editor highlights, from
+// limumygo's mermaid package at the version go.mod requires, so that the code blocks of the
+// site highlight the same words.
+func mermaidKeywords() string {
+	dir, err := exec.Command("go", "list", "-m", "-f", "{{.Dir}}", "github.com/firede/limu/limumygo").Output()
+	if err != nil {
+		log.Fatalf("gen: finding limumygo: %v", err)
+	}
+	b, err := os.ReadFile(filepath.Join(strings.TrimSpace(string(dir)), "mermaid", "keywords.json"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(b)
 }
 
 func mustJSON(v any) string {

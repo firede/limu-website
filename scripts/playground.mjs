@@ -1,6 +1,7 @@
-// Builds the playground for browsers: limumygo/examples/playground compiled to WebAssembly,
-// with Go's loader of it, wasm_exec.js, into public/playground, each named by a hash of its
-// content, so that the site can have browsers keep them for good. It writes their names
+// Builds the playground for browsers: limumygo's examples/playground, at the version go.mod
+// requires it as a tool, compiled to WebAssembly, with Go's loader of it, wasm_exec.js, into
+// public/playground, each named by a hash of its content, so that the site can have browsers
+// keep them for good. It writes their names
 // and the WebAssembly's size to src/generated/playground.json, which the page that loads
 // them, src/pages/playground.astro, reads. Run it from the website directory when the
 // playground or limu changes; pnpm build does not, so that a change to the documents does
@@ -21,8 +22,7 @@ const out = 'public/playground';
 const tmp = mkdtempSync(join(tmpdir(), 'limu-playground-'));
 try {
   const wasmFile = join(tmp, 'playground.wasm');
-  execFileSync('go', ['build', '-trimpath', '-tags', 'mygo_noinspector', '-ldflags=-s -w', '-o', wasmFile, './examples/playground'], {
-    cwd: '../limumygo',
+  execFileSync('go', ['build', '-trimpath', '-tags', 'mygo_noinspector', '-ldflags=-s -w', '-o', wasmFile, 'github.com/firede/limu/limumygo/examples/playground'], {
     env: { ...process.env, GOOS: 'js', GOARCH: 'wasm' },
     stdio: 'inherit',
   });

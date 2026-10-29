@@ -1,8 +1,8 @@
 # limu's website
 
 The website at [limu.firede.com](https://limu.firede.com), built with Astro and served by
-Cloudflare as a Worker of static assets. [docs/website.md](../docs/website.md) says what it
-holds and how it looks.
+Cloudflare as a Worker of static assets. [docs/website.md](docs/website.md) says what it
+holds and how it looks, and [AGENTS.md](AGENTS.md) has the rules for changing it.
 
 It needs Node 22.13 or later, pnpm, and Go.
 
@@ -15,12 +15,15 @@ pnpm check       # checks the site's types
 pnpm run deploy  # builds the playground and the site, and deploys them with wrangler
 ```
 
-Publishing a release of limu on GitHub deploys the site too, through
-`.github/workflows/site.yml`.
+A push to main deploys the site, through `.github/workflows/site.yml`. The site shows the
+releases `go.mod` requires. To follow a new release of limu, run
+`go get github.com/firede/limu@<version> && go get -tool github.com/firede/limu/limumygo/examples/playground@<version>`,
+then `go mod tidy`, check the documents against what changed, and push.
+`.github/workflows/releases.yml` fails each day that a release is left behind.
 
 ## What is written, and from what
 
-`gen`, a Go program in a module of its own, writes what the site shows of limu's own work
+`gen`, a Go program, writes what the site shows of limu's own work
 before Astro builds it:
 
 - `public/mark.svg`, `mark-16.svg`, `icon.svg` and `icon-16.svg`: the mark and the icon,
@@ -35,7 +38,7 @@ before Astro builds it:
   the same way.
 
 `scripts/playground.mjs`, which `pnpm playground` runs, compiles the playground,
-`limumygo/examples/playground`, to WebAssembly, and writes:
+limumygo's `examples/playground` at the release `go.mod` requires, to WebAssembly, and writes:
 
 - `public/playground/playground.<hash>.wasm` and `wasm_exec.<hash>.js`, Go's loader of it,
   named by their content, which `public/_headers` has browsers keep for good.

@@ -1,0 +1,41 @@
+name: site
+
+# Builds the website and the playground with it. A push to main deploys them to Cloudflare,
+# as does a run by hand from main. A pull request only builds them. Deploying needs the
+# repository's secret CLOUDFLARE_API_TOKEN: a token that may edit Workers (Cloudflare's
+# "Edit Cloudflare Workers" template).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.28.5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: go vet ./gen
+      - run: pnpm check
+      - run: pnpm playground
+      - run: pnpm build
+      - if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: pnpm exec wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

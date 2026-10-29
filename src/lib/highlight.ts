@@ -1,4 +1,4 @@
-import mermaidKeywordFile from '../../../limumygo/mermaid/keywords.json' with { type: 'json' };
+import mermaidKeywordFile from '../generated/mermaid-keywords.json' with { type: 'json' };
 
 // A longer line is left as it is, as highlighting it would cost more than it shows.
 const maxHighlightLineLength = 2_000;

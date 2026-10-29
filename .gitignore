@@ -4,3 +4,5 @@ dist/
 .wrangler/
 src/generated/
 public/playground/
+go.work
+go.work.sum
