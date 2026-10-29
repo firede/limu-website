@@ -8,7 +8,6 @@ import (
 	"go/token"
 	"math"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -89,11 +88,11 @@ func siteColors(t *testing.T) map[string]map[string]string {
 // the variables and of their fields. Fields that aren't strings, as dark and diagram, are
 // left out.
 func playgroundPalettes(t *testing.T) map[string]map[string]string {
-	dir, err := exec.Command("go", "list", "-m", "-f", "{{.Dir}}", "github.com/firede/limu/limumygo").Output()
+	dir, err := moduleDir("github.com/firede/limu/limumygo")
 	if err != nil {
-		t.Fatalf("finding limumygo: %v", err)
+		t.Fatal(err)
 	}
-	file := filepath.Join(strings.TrimSpace(string(dir)), "examples", "playground", "appearance.go")
+	file := filepath.Join(dir, "examples", "playground", "appearance.go")
 	f, err := parser.ParseFile(token.NewFileSet(), file, nil, 0)
 	if err != nil {
 		t.Fatal(err)

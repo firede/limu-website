@@ -74,15 +74,29 @@ func main() {
 // limumygo's mermaid package at the version go.mod requires, so that the code blocks of the
 // site highlight the same words.
 func mermaidKeywords() string {
-	dir, err := exec.Command("go", "list", "-m", "-f", "{{.Dir}}", "github.com/firede/limu/limumygo").Output()
+	dir, err := moduleDir("github.com/firede/limu/limumygo")
 	if err != nil {
-		log.Fatalf("gen: finding limumygo: %v", err)
+		log.Fatal(err)
 	}
-	b, err := os.ReadFile(filepath.Join(strings.TrimSpace(string(dir)), "mermaid", "keywords.json"))
+	b, err := os.ReadFile(filepath.Join(dir, "mermaid", "keywords.json"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	return string(b)
+}
+
+// moduleDir is the directory of a module at the version go.mod requires, which it downloads
+// first where it isn't yet.
+func moduleDir(path string) (string, error) {
+	out, err := exec.Command("go", "mod", "download", "-json", path).Output()
+	if err != nil {
+		return "", fmt.Errorf("gen: downloading %s: %v", path, err)
+	}
+	var m struct{ Dir string }
+	if err := json.Unmarshal(out, &m); err != nil || m.Dir == "" {
+		return "", fmt.Errorf("gen: no directory for %s", path)
+	}
+	return m.Dir, nil
 }
 
 func mustJSON(v any) string {
