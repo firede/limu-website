@@ -406,7 +406,7 @@ const rustBuiltinType = /^(?:bool|char|f32|f64|i8|i16|i32|i64|i128|isize|str|u8|
 // in their colors, calls and macros as functions, and names in capitals, as Options, as
 // types, except a field named in a struct's literal. A constant in capitals, as KOHU, is a
 // constant. Other names stay in the text's color.
-function highlightRustLine(line: string, state: HighlightState) {
+function highlightRustLine(line: string, state: HighlightState): string {
   let output = '';
   let rest = line;
   if (state.comment) {
@@ -432,7 +432,7 @@ function highlightRustLine(line: string, state: HighlightState) {
     output += span('syn-string', rest.slice(0, end)) + span('syn-punctuation', '"');
     rest = rest.slice(end + 1);
   }
-  const tokens = rest.match(/\/\/.*$|\/\*[\s\S]*?(?:\*\/|$)|r#*"|"(?:\\.|[^"\\])*"?|'(?:\\.|[^'\\])'|'[A-Za-z_]\w*|#!?\[|\b(?:0[xX][\da-fA-F_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d+)?(?:[iuf](?:8|16|32|64|128|size))?)\b|[A-Za-z_]\w*|::|=>|->|\.\.=?|==|!=|<=|>=|&&|\|\||\s+|./g) ?? [];
+  const tokens: string[] = rest.match(/\/\/.*$|\/\*[\s\S]*?(?:\*\/|$)|r#*"|"(?:\\.|[^"\\])*"?|'(?:\\.|[^'\\])'|'[A-Za-z_]\w*|#!?\[|\b(?:0[xX][\da-fA-F_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d+)?(?:[iuf](?:8|16|32|64|128|size))?)\b|[A-Za-z_]\w*|::|=>|->|\.\.=?|==|!=|<=|>=|&&|\|\||\s+|./g) ?? [];
   for (let index = 0; index < tokens.length; index++) {
     const token = tokens[index];
     const next = () => tokens.slice(index + 1).find((candidate) => !/^\s+$/.test(candidate));
