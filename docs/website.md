@@ -1,12 +1,12 @@
 # Website
 
-This document describes limu's website, [limu.firede.com](https://limu.firede.com), for
-people who work on it.
+This document describes the website of limu and limu-rs,
+[limu.firede.com](https://limu.firede.com), for people who work on it.
 
 ## Build and hosting
 
-The site is built with Astro, as Pele's is, from this repository, which is limu's website and
-nothing else. It was `website/` in limu's repository until 2026-10-29, and its history came
+The site is built with Astro, as Pele's is, from this repository, which is the website of
+limu and limu-rs and nothing else. It was `website/` in limu's repository until 2026-10-29, and its history came
 with it. Cloudflare serves it as the static assets of a Worker, as it serves mygo-platinum's
 site. A push to main deploys it (`.github/workflows/site.yml`), and `pnpm run deploy`
 deploys it by hand. The site is in English only. The import path stays
@@ -20,6 +20,13 @@ that `go.mod` requires the latest releases, and fails when it doesn't, so a rele
 hasn't followed shows as a failed check. To build the site with an unreleased limu, put a
 `go.work` beside `go.mod` that uses this module and limu's checkouts, as
 `go work init . ../limu ../limu/limumygo`. Git ignores it.
+
+limu-rs is shown the same way. `limu-rs.json` names the repository and the tag the Rust
+playground is built from, and the daily check fails when limu-rs has a newer tag. limu-rs
+has no release yet, so it names a commit until its first, and the check passes while it
+does. `LIMU_RS`, set to a checkout, builds the Rust playground from that checkout instead.
+The diagrams the site draws are drawn by limu in Go. limu-rs lays them out to the same bit,
+so the site doesn't draw them twice.
 
 A Go program, `gen`, runs before Astro builds and writes what the site shows of limu's own
 work.
@@ -37,7 +44,7 @@ work.
 The module's path is `github.com/firede/limu/website`, under limu's, because `gen` reads the
 examples from limu's `internal/gallery`, which Go lets only paths under limu's import. The
 PNG icons are drawn from the SVGs by headless Chrome and committed (`scripts/icons.mjs`). No
-page but the playground loads WebAssembly.
+page but the playgrounds loads WebAssembly.
 
 The diagrams' text is set in Arial, or a font of the same width, because layout measures it
 with `text.Arial`. Setting it in Hanken Grotesk, like the rest of the site, would need a
@@ -50,22 +57,48 @@ website under its MIT license, which `PELE-LICENSE` holds.
 
 As on Pele's site, a sidebar lists the pages, from the home page (Introduction) to the
 documents, and on a narrow screen they're in a menu. The mark and the name head the
-sidebar, with the playground's button below them. The GitHub link and the switch between
-light and dark are in the top right corner. The footer lists the pages again in three
-groups, Start, Guides and Project. There is no search, and no page comparing limu with Pele
+sidebar, with the playground's button below them. The switch between Go and Rust, the
+GitHub link and the switch between light and dark are in the top right corner. The footer
+lists the pages again in four groups, Start, Guides, Backends and Project. There is no search, and no page comparing limu with Pele
 or Mermaid, since limu matches Pele number for number.
+
+### Two languages
+
+The site is one site for both ports. They lay diagrams out alike and differ in their API
+and their backends, so each page is written once, and what differs is written for each
+language. A reader picks the language once, Go or Rust, in the header or in the switch above
+any example, and the whole site follows. Go is the language until another is picked. The
+choice is kept in the browser as `limu-lang`, and a script in the head sets it on the root
+as `data-lang` before the page is drawn, so the page never shows the other language first.
+CSS hides whatever is marked for the other language. The links to the playground go to the
+language's playground, and the header's GitHub link to its repository.
+
+A document marks what is for one language in three ways.
+
+- Code blocks of Go and Rust next to each other become one example with a switch. A block
+  of another language joins them with `for="go"` or `for="rust"`, as the two commands that
+  install limu do.
+- An inline name written `` `go:limu.Layout` `` or `` `rust:limu::layout` `` shows for its
+  language alone. A sentence that names a thing in both gives both, side by side.
+- A paragraph, a list or a table for one language goes in a `<div data-lang-only="rust">`,
+  with blank lines around its Markdown.
+
+The pages of a backend that only one language has are listed for both readers, with a badge
+that names the language. The Markdown a page is also served as keeps both languages, and
+writes each inline name with its language in words.
 
 ### Home
 
-The home page says what limu is for, which is drawing diagrams natively. Its first code
-example draws a diagram with limumygo, and the SVG backend comes second. It credits Pele,
-which most of limu is ported from.
+The home page says what limu is for, which is drawing diagrams natively. Its code comes
+first with the native backends of the language read, MyGo for Go, and GPUI, tiny-skia and
+the terminal for Rust, with SVG last. It credits Pele, which both ports follow.
 
 Its section on how limu works has three pictures, which the Architecture page also shows.
 
 1. **Where the pipeline branches.** A renderer of SVG goes from text to a layout to an SVG
    string to a browser. limu goes from text to a layout to a scene and branches there, to
-   MyGo on the GPU, to SVG, or to a backend of the host's own. `gen` draws this picture with
+   SVG, to MyGo or GPUI on the GPU, to tiny-skia or Core Graphics, or to a backend of the
+   host's own. `gen` draws this picture with
    the svg package, as two diagrams, with limu's scene in the accent color.
 2. **One scene, laid out once and drawn four ways**, lined up so that the geometry matches.
    The first is the scene as data, with each item's box, parts, route and label box and no
@@ -94,8 +127,9 @@ limu, so the picture is drawn there and only the PNG is committed here, as
 go run ./examples/diagrams -src review.mmd -png platinum.png -frame Review -scale 2
 ```
 
-After the pictures come the code, with a switch between MyGo and SVG, then cards linking to
-the examples, the playground, Getting started and Theming, and a paragraph on limu and Pele.
+After the pictures come the code, with a switch among the backends of the language read,
+then cards linking to the examples, the playground, Getting started and Theming, and a
+paragraph on limu, limu-rs and Pele.
 
 ### Social pictures
 
@@ -106,7 +140,8 @@ picture a link to the site shows. It's set under the sea that limu is named for.
   the caustics the surface throws.
 - Limu kohu, drawn with limu's mark, grows from the floor.
 - On the left are limu's name, the lede's first sentence, a line on drawing with MyGo or as
-  SVG, and the address.
+  SVG, and the address. It says "in Go", as it was drawn before limu-rs, and is to be drawn
+  again for both languages.
 - On the right is how limu works (Mermaid, layout, the scene, MyGo and SVG), laid out by
   limu from the bottom up and drawn as bubbles of clear glass that rise from the limu and
   bend the light behind them.
@@ -193,19 +228,34 @@ library 5.5 MB, MyGo 4.0 MB (2.3 MB of it its `ui` and `editor`), and limu's oth
 and compresses `application/wasm`. The playground's build and the site's fail when the
 WebAssembly passes 24 MiB. Past 25 MiB, it would have to be served from R2.
 
+`/playground/rust` is limu-rs's playground. limu-rs builds it from its `limu-playground`
+crate, a module of WebAssembly with no imports, and `limu.js`, the script a page calls it
+through. The site builds both with limu-rs's own `scripts/playground.sh`, at the commit or
+tag `limu-rs.json` names (`scripts/playground-rust.mjs`), into
+`public/assets/playground/rust`. The page is written by the site, under the same narrow bar.
+It has the text, an Examples menu of limu's gallery, a link to share, and the diagram as SVG,
+as text for a terminal, or as its scene. The SVG is inlined with the `--limu-*` variables,
+so it follows the site's light or dark switch. The module is 3.3 MB, 1.1 MB with gzip, a
+seventh of the Go playground's, and the page lays the text out as it's typed. Both playgrounds take a
+diagram from `#source=…`, and the links in their bars move between them with the text.
+
 ### Documents
 
 | Page | What it covers |
 |---|---|
-| Getting started | Installing, then `limu.Layout` and `svg.Render`, which need only the standard library. Parsing once with `limu.Parse` and laying out many times, as when the width changes. `Types` and `Supports`. |
-| API | The `limu` package. `diagram.Options`, with `Config` and the limits, and what to set them to for untrusted text. The error codes. `layout.Options`. The scene, in enough detail to walk it. Measuring text with a `Measurer` and `text.Arial`. Each section links to pkg.go.dev rather than repeating it. |
-| Theming | The three levels of style, with the tokens and values of Kohu, KohuDark and Default, overrides by role, and a backend's own drawing. Styles an author writes in the diagram with `classDef` and `style`. |
-| MyGo | Installing limumygo. `View`, and finding the item under the pointer with `ItemAt`. `Paint` on a `Painter`. `Fonts`, which measure and draw in the same fonts. `DrawIcon` and `DrawImage`. The editor's language in `limumygo/mermaid`. Running in a browser. limumygo loads no image and follows no link, and the host decides through `DrawImage` and the pointer's events. |
-| SVG | `svg.Render` and its `Options`, including `Literal`, the fonts, `IconMarkup`, `Draw` and the `Writer`. Setting the `--limu-*` variables in a page. Untrusted diagrams, with the schemes links and images may use (`LinkSchemes`, `ImageSchemes`) and where icon markup comes from. |
-| Architecture | The stages, and what belongs to layout and what to style. A sentence or two on how a backend walks the scene, enough for an agent to write one from there. The two pictures of the home page. How limu is ported from Pele and checked against it. It's the short form of `docs/design.md`. |
-| Compatibility | The types limu reads. Where it differs from Pele, such as what it doesn't port (`mount`, zoom) and differences of the platform. Where it differs from Mermaid, mostly as Pele does. How to report a difference. |
+| Getting started | Installing, then laying out and rendering SVG, which need only the standard library. Parsing once and laying out many times, as when the width changes. Listing and checking the types, and in Rust, the feature of each type. |
+| API | The packages of limu, or the crates of limu-rs. The parsing options, with the configuration and the limits, and what to set them to for untrusted text. The error codes. The layout options. The scene, in enough detail to walk it. Measuring text with a measurer and the table of Arial's widths. The Go page links to pkg.go.dev rather than repeating it, and limu-rs, not yet on crates.io, to `cargo doc`. |
+| Theming | The three levels of style, with the tokens and values of Kohu, KohuDark and Pele's theme, overrides by role, and a backend's own drawing. Styles an author writes in the diagram with `classDef` and `style`. |
+| SVG | The SVG backend and its options, the fonts, icon markup, and drawing items with a function of one's own. Setting the `--limu-*` variables in a page. Untrusted diagrams, with the schemes links and images may use and where icon markup comes from. |
+| MyGo | Go alone. Installing limumygo. `View`, and finding the item under the pointer with `ItemAt`. `Paint` on a `Painter`. `Fonts`, which measure and draw in the same fonts. `DrawIcon` and `DrawImage`. The editor's language in `limumygo/mermaid`. Running in a browser. limumygo loads no image and follows no link, and the host decides through `DrawImage` and the pointer's events. |
+| tiny-skia | Rust alone. Drawing into a new pixmap and into one of the host's. `Fonts` from font files, with no fallback. Icons and images. Drawing items with a hook of one's own. |
+| Core Graphics | Rust alone, on Apple's platforms. Drawing into an image and into a view's context. `Fonts` from Core Text or font data. Icons and images. A hook of one's own. |
+| GPUI | Rust alone. The dependencies GPUI needs. Painting in a window, and finding the item under the pointer. Measuring with GPUI's text system, and the text it paints otherwise. Icons, images and a hook of one's own. |
+| Terminal | Rust alone. Laying out for a terminal's cells and drawing in them, in box-drawing characters or ASCII. The diagrams it doesn't draw, and wide characters. |
+| Architecture | The stages, and what belongs to layout and what to style. How a backend walks the scene, enough for an agent to write one from there. The two pictures of the home page. How both ports follow Pele and are checked against it, and where limu-rs is built otherwise. It's the short form of both design documents. |
+| Compatibility | The types limu reads. Where it differs from Pele, such as what it doesn't port (`mount`, zoom) and differences of the platform. Where it differs from Mermaid, mostly as Pele does. How to report a difference, to the port it's in. |
 
-MyGo comes before SVG, because drawing natively is what limu is for.
+The backends come after SVG, MyGo first and then limu-rs's, each with a badge of its language.
 
 Two things about Chinese, Japanese and Korean text are in the documents. The API page says
 that `text.Arial` only estimates such text, at an em per character, and wraps Chinese and

@@ -15,3 +15,9 @@ export const docs = docsPages.filter((page) => `../content/docs/${page.id}.md` i
 });
 
 export const getDoc = (id: DocsPageId) => docs.find((doc) => doc.id === id)!;
+
+// A document's Markdown as an agent reads it, with the names the site shows for one language
+// only, written `go:Name` and `rust:name`, marked with their language in words.
+export const plainMarkdown = (source: string) => source.replace(
+  /`(go|rust):([^`]+)`/g, (_code, lang: string, name: string) => `\`${name}\` (${lang === 'go' ? 'Go' : 'Rust'})`,
+);

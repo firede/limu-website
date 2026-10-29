@@ -1,6 +1,6 @@
 ---
 import { navPages } from '../lib/nav';
-import { pageHref, repositoryUrl, type DocsPageId } from '../lib/site';
+import { pageHref, repositoryUrl, rustRepositoryUrl, type DocsPageId } from '../lib/site';
 
 // The footer groups the pages, so that each group is a short column. A page is listed once
 // it exists; the playground and the repository are not pages of the site's navigation.
@@ -8,7 +8,7 @@ const groups: { title: string; pages: DocsPageId[]; extra?: { title: string; hre
   { title: 'Start', pages: ['introduction', 'getting-started', 'examples'], extra: [{ title: 'Playground', href: '/playground', playground: true }] },
   { title: 'Guides', pages: ['api', 'theming', 'svg'] },
   { title: 'Backends', pages: ['mygo', 'tiny-skia', 'core-graphics', 'gpui', 'terminal'] },
-  { title: 'Project', pages: ['architecture', 'compatibility'], extra: [{ title: 'GitHub', href: repositoryUrl, external: true }] },
+  { title: 'Project', pages: ['architecture', 'compatibility'], extra: [{ title: 'limu on GitHub', href: repositoryUrl, external: true }, { title: 'limu-rs on GitHub', href: rustRepositoryUrl, external: true }] },
 ];
 const listed = (id: DocsPageId) => navPages.find((page) => page.id === id);
 ---

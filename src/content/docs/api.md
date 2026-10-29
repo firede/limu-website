@@ -3,6 +3,8 @@ title: "API"
 description: "Parse and lay out diagrams, set limits, handle errors, and read the scene."
 ---
 
+<div data-lang-only="go">
+
 limu is split into a few packages, one for each stage of drawing a diagram. This page explains what each one is for and when you need it. [pkg.go.dev](https://pkg.go.dev/github.com/firede/limu) documents every name in full.
 
 | Package | What it does |
@@ -18,7 +20,33 @@ limu is split into a few packages, one for each stage of drawing a diagram. This
 
 Every package except `limumygo` uses only Go's standard library.
 
-## The limu package
+</div>
+
+<div data-lang-only="rust">
+
+limu-rs is split into a few crates. `limu` reads and lays out diagrams, `limu-scene` holds what a backend needs to draw them, and each backend is a crate of its own. This page explains what each part is for and when you need it. limu-rs isn't on crates.io yet, so `cargo doc --open` in a project that uses it is how to read every name in full.
+
+| Crate or module | What it does |
+| --- | --- |
+| `limu` | Reads a diagram and lays it out. It holds the parsing options, the diagram types and the error type. |
+| `limu::layout` | Holds the options that change where things go. |
+| `limu::roles` | Names the role of every part of every diagram. See [Theming](/theming). |
+| `limu::scene` | The `limu-scene` crate. It describes a laid-out diagram as a list of items, and holds the drawing every backend shares. |
+| `limu::scene::text` | Measures text and lays out labels. |
+| `limu::scene::style` | Holds themes and overrides. See [Theming](/theming). |
+| `limu::scene::svg` | Renders a scene as SVG. See [SVG](/svg). |
+| `limu-tiny-skia` | Draws a scene into a bitmap. See [tiny-skia](/tiny-skia). |
+| `limu-coregraphics` | Draws a scene with Core Graphics, on Apple's platforms. See [Core Graphics](/core-graphics). |
+| `limu-gpui` | Draws a scene in a GPUI window. See [GPUI](/gpui). |
+| `limu-ascii` | Draws a scene as text in a terminal's cells. See [Terminal](/terminal). |
+
+`limu` and `limu-scene` use only Rust's standard library, and `serde` behind their optional `serde` feature. A backend that needs another crate is a crate of its own, so a program builds only the backends it uses.
+
+</div>
+
+## Reading and laying out
+
+<div data-lang-only="go">
 
 | Name | What it does |
 | --- | --- |
@@ -31,11 +59,29 @@ Every package except `limumygo` uses only Go's standard library.
 | `Types()` | Lists the diagram types limu supports. |
 | `Supports(src)` | Reports whether limu supports the type a text declares. It doesn't parse the rest, so the text may still have errors. |
 
-`Layout` is the same as calling `Parse` with default options and then `Diagram.Layout`. If you lay out the same diagram more than once, for example when its width changes, parse it only once.
+</div>
+
+<div data-lang-only="rust">
+
+| Name | What it does |
+| --- | --- |
+| `layout(src, o)` | Reads a diagram and lays it out as a scene. |
+| `parse(src, opt)` | Reads a diagram into a `Diagram` to lay out later. |
+| `Diagram::layout(o)` | Lays out the diagram. You can call it many times, with different options, from several threads at once. |
+| `Diagram::diagram_type()` | Returns the diagram's type, such as `DiagramType::Flowchart`. |
+| `Diagram::mermaid_type()` | Returns the type as Mermaid names it, such as `flowchart-v2` for `graph TD`. |
+| `Diagram::title()` | Returns the title the diagram's front matter gives it. |
+| `Diagram::config()` | Returns the diagram's configuration, with its own settings over the ones it was parsed with. |
+| `types()` | Lists the diagram types limu supports, which are those whose features are on. |
+| `supports(src)` | Reports whether limu supports the type a text declares. It doesn't parse the rest, so the text may still have errors. |
+
+</div>
+
+Laying out a text is the same as parsing it with default options and then laying out the diagram. If you lay out the same diagram more than once, for example when its width changes, parse it only once.
 
 ## Parsing
 
-`diagram.Options` sets the limits for the text and any configuration to apply beneath the diagram's own.
+The parsing options, `go:diagram.Options` `rust:limu::ParseOptions`, set the limits for the text and any configuration to apply beneath the diagram's own.
 
 ```go
 d, err := limu.Parse(src, diagram.Options{
@@ -43,40 +89,55 @@ d, err := limu.Parse(src, diagram.Options{
 })
 ```
 
-`Config` plays the role of Mermaid's configuration. A diagram can also set configuration in its front matter or in an `%%{init: …}%%` directive, and its own settings win key by key. Values follow JSON, so objects are `diagram.Config`, arrays are `[]any` and numbers are `float64`.
+```rust
+use limu::{Map, Value};
+
+let flowchart = Map::from_iter([("curve", Value::from("linear"))]);
+let d = limu::parse(
+    src,
+    &limu::ParseOptions {
+        config: Map::from_iter([("flowchart", Value::from(flowchart))]),
+        ..Default::default()
+    },
+)?;
+```
+
+The configuration plays the role of Mermaid's. A diagram can also set configuration in its front matter or in an `%%{init: …}%%` directive, and its own settings win key by key. Values follow JSON. In Go, objects are `diagram.Config`, arrays are `[]any` and numbers are `float64`. In Rust, values are a `limu::Value`, and objects are a `limu::Map`, which keeps its keys in the order JavaScript does.
 
 ### Limits
 
 | Limit | Default | Option |
 | --- | --- | --- |
-| Length of the text | 50,000 UTF-16 code units, Mermaid's `maxTextSize` | `Limit` |
-| Edges in a flowchart or agent flow | 5,000 | `MaxEdges` |
+| Length of the text | 50,000 UTF-16 code units, Mermaid's `maxTextSize` | `go:Limit` `rust:limit` |
+| Edges in a flowchart or agent flow | 5,000 | `go:MaxEdges` `rust:max_edges` |
 
-Text over a limit gives an error with code `diagram.Limit`. A negative limit turns it off. For untrusted text, keep the defaults or lower them. The edge limit matters because `A & B --> C & D` multiplies, so a few kilobytes of text can ask for millions of edges. limu can't stop a layout once it has started, and the limits are what keep its work bounded.
+Text over a limit gives an error with the code `go:diagram.Limit` `rust:ErrorCode::Limit`. In Go, a negative limit turns it off. In Rust, `None` does. For untrusted text, keep the defaults or lower them. The edge limit matters because `A & B --> C & D` multiplies, so a few kilobytes of text can ask for millions of edges. limu can't stop a layout once it has started, and the limits are what keep its work bounded.
 
 ### Errors
 
-`Parse`, `Layout` and `Diagram.Layout` return a `*diagram.Error` with these fields.
+Parsing and layout return an error, a `go:*diagram.Error` `rust:limu::Error`, with these fields.
 
 | Field | What it holds |
 | --- | --- |
-| `Code` | The kind of error. |
-| `Message` | A description of the problem, which may quote the diagram. |
-| `Type` | The diagram's type, if known. |
-| `MermaidType` | The type as Mermaid names it, if known. |
-| `Line`, `Column` | The position of the error, counted from 1, with the column in UTF-16 code units. Both are 0 when the error has no position. |
-| `Snippet` | The line with the error and a caret under the position, when there is one. |
+| `go:Code` `rust:code` | The kind of error. |
+| `go:Message` `rust:message` | A description of the problem, which may quote the diagram. |
+| `go:Type` `rust:diagram` | The diagram's type, if known. |
+| `go:MermaidType` `rust:mermaid_type` | The type as Mermaid names it, if known. |
+| `go:Line, Column` `rust:line, column` | The position of the error, counted from 1, with the column in UTF-16 code units. Both are 0 when the error has no position. |
+| `go:Snippet` `rust:snippet` | The line with the error and a caret under the position, when there is one. |
 
 | Code | Meaning |
 | --- | --- |
-| `diagram.UnsupportedDiagram` | The text isn't a type limu supports. |
-| `diagram.Syntax` | The text doesn't parse. |
-| `diagram.Semantic` | The text parses but asks for something impossible, such as a shape that doesn't exist. |
-| `diagram.Limit` | The text is over a limit, or the scene would contain a number that isn't finite where Pele would draw NaN. |
+| `go:diagram.UnsupportedDiagram` `rust:ErrorCode::UnsupportedDiagram` | The text isn't a type limu supports. |
+| `go:diagram.Syntax` `rust:ErrorCode::Syntax` | The text doesn't parse. |
+| `go:diagram.Semantic` `rust:ErrorCode::Semantic` | The text parses but asks for something impossible, such as a shape that doesn't exist. |
+| `go:diagram.Limit` `rust:ErrorCode::Limit` | The text is over a limit, or the scene would contain a number that isn't finite where Pele would draw NaN. |
 
 ## Layout
 
-`layout.Options` holds everything that affects where things go. Changing these options means laying the diagram out again, while changing the style doesn't. Nil options are the same as the zero value, and every zero field means the default.
+The layout options, `go:layout.Options` `rust:limu::layout::Options`, hold everything that affects where things go. Changing these options means laying the diagram out again, while changing the style doesn't. In Go, nil options are the same as the zero value, and every zero field means the default. In Rust, `Options::default()` gives the defaults.
+
+<div data-lang-only="go">
 
 | Field | Default | What it does |
 | --- | --- | --- |
@@ -95,13 +156,38 @@ Text over a limit gives an error with code `diagram.Limit`. A negative limit tur
 | `Now` | `time.Now()` | Sets the current time for gantt charts, which marks today and starts tasks that have no start date. |
 | `Location` | `time.Local` | Sets the time zone gantt charts read and write dates in. |
 
-`Routing` applies to flowcharts and to swimlane, agent flow, state, class, entity relationship, requirement and use case diagrams. Other diagrams route their edges as Pele does.
+</div>
 
-To render the same diagram on every build, set `Now` and `Location`. This site does that for its gantt charts.
+<div data-lang-only="rust">
+
+| Field | Default | What it does |
+| --- | --- | --- |
+| `measurer` | `&Arial` | Measures text. See [Measuring text](#measuring-text). |
+| `font_size` | 16 | Sets the size of text that has no size of its own. |
+| `icons` | `None` | Reports whether you can draw an icon such as `fa:fa-car`. Labels leave room only for icons you can draw. |
+| `max_width` | infinity | Sets the width you have. Diagrams that can get narrower will. |
+| `keep_direction` | false | Stops a diagram that runs across from switching to run down to fit `max_width`. |
+| `direction_breakpoint` | 640 | Sets the `max_width` below which a diagram may switch direction. |
+| `links`, `images` | true | Keep the links and images a diagram asks for. Set them to false to drop them. |
+| `link_schemes`, `image_schemes` | see [SVG](/svg#untrusted-diagrams) | Set the URL schemes that links and images may use besides relative URLs. |
+| `padding` | `None`, which is 8 | Sets the space around the diagram. |
+| `snap` | `None` | Rounds positions to a `Grid`, for backends that draw on whole pixels or on a terminal's cells. |
+| `routing` | `Routing::Auto` | Sets how edges run in ranked layouts. `Auto` follows the text, and `Routing::Orthogonal` and `Routing::Straight` override it. |
+| `monospace` | `Monospace::NONE` | Sets which parts are set in the monospace face. `Monospace::MEMBERS` covers the members of class diagrams, `ATTRIBUTES` the types, names and keys of the attributes of entity relationship diagrams, `FILES` the entries of tree views, and `MESSAGES` the messages of sequence diagrams. A part whose author gives it a font keeps it. |
+| `now` | `None`, the time of the layout | Sets the current time for gantt charts, which marks today and starts tasks that have no start date. |
+| `time_zone` | `&Utc` | Sets the time zone gantt charts read and write dates in. The standard library knows no zone but UTC. `FixedOffset` is a zone a fixed number of seconds east of it, and a program that needs a real zone implements `TimeZone`, with a crate such as jiff. |
+
+</div>
+
+The routing applies to flowcharts and to swimlane, agent flow, state, class, entity relationship, requirement and use case diagrams. Other diagrams route their edges as Pele does.
+
+To render the same diagram on every build, set the current time and the time zone. This site does that for its gantt charts.
 
 ## The scene
 
-A `scene.Scene` is a laid-out diagram. It has a size and a list of items in drawing order. Each item records what it is and where it goes, but not how it looks. Its colors are theme tokens that are resolved only when it's drawn.
+A scene, `go:scene.Scene` `rust:limu::scene::Scene`, is a laid-out diagram. It has a size and a list of items in drawing order. Each item records what it is and where it goes, but not how it looks. Its colors are theme tokens that are resolved only when it's drawn.
+
+<div data-lang-only="go">
 
 | Field | What it holds |
 | --- | --- |
@@ -118,6 +204,26 @@ A `scene.Scene` is a laid-out diagram. It has a size and a list of items in draw
 | `Style`, `Author` | The diagram's own style for the item, and what the author set with `classDef` and `style`. |
 | `Link`, `Tooltip` | Where the item links to, and its tooltip. |
 
+</div>
+
+<div data-lang-only="rust">
+
+| Field | What it holds |
+| --- | --- |
+| `kind` | `Kind::Node`, `Group`, `Edge`, `Text` for a standalone label, or `Mark` for a shape without a label. An edge's kind holds its `route`, the corners of its line, and its `ends`, the markers at its ends. |
+| `role` | Which part of which diagram the item is, such as `flowchart.node`. Styles are assigned by role. |
+| `shape` | The name of the item's outline, such as `rect` or `diam`. |
+| `id` | The id the diagram gave the item. |
+| `class`, `tags` | The classes the author assigned, and extra facts the diagram records, such as a gantt task being `done`. |
+| `bounds` | Where the item is. `label_bounds()` returns where its label is drawn. |
+| `parts` | The item's outline as paths and boxes, each with how it's painted. |
+| `label` | The measured label, with where and how to draw it. |
+| `picture` | An image or icon the item shows. |
+| `style`, `author` | The diagram's own style for the item, and what the author set with `classDef` and `style`. |
+| `link`, `tooltip` | Where the item links to, and its tooltip. |
+
+</div>
+
 Because a scene is plain data, a program can read it directly. This loop prints where each node is.
 
 ```go
@@ -128,11 +234,27 @@ for _, it := range sc.Items {
 }
 ```
 
-A backend draws each item's parts, the markers at an edge's ends (`Marker.Outline`) and the label. A backend with its own look can instead draw items from their role, shape, box and route. Paths use only four kinds of step, which are moves, lines, and quadratic and cubic curves. Arcs are converted to cubic curves. For backends that can't draw curves or dashes, `Path.Flatten` turns a path into polylines and `scene.Dash` cuts polylines into dashes.
+```rust
+use limu::scene::Kind;
+
+for it in &scene.items {
+    if matches!(it.kind, Kind::Node) {
+        println!("{} {:?} at {:?}", it.role.as_str(), it.id, it.bounds);
+    }
+}
+```
+
+A backend draws each item's parts, the markers at an edge's ends (`go:Marker.Outline` `rust:Marker::outline`) and the label. A backend with its own look can instead draw items from their role, shape, box and route. Paths use only four kinds of step, which are moves, lines, and quadratic and cubic curves. Arcs are converted to cubic curves. For backends that can't draw curves or dashes, `go:Path.Flatten` `rust:Path::flatten` turns a path into polylines and `go:scene.Dash` `rust:limu::scene::dash` cuts polylines into dashes.
+
+<div data-lang-only="rust">
+
+The drawing the Rust backends share is in `limu::scene` too. A backend implements `Canvas`, which fills and strokes paths and sets text and pictures, and `draw` walks the scene and settles each item's style for it. `Scene::item_at` finds the item at a point, for a program that answers the pointer.
+
+</div>
 
 ## Measuring text
 
-Layout measures every label, so a diagram must be drawn in the fonts it was measured with. Otherwise the text won't fit the space layout gave it. A `text.Measurer` returns the width of text in a given face and size.
+Layout measures every label, so a diagram must be drawn in the fonts it was measured with. Otherwise the text won't fit the space layout gave it. A measurer, `go:text.Measurer` `rust:limu::scene::text::Measurer`, returns the width of text in a given face and size.
 
 ```go
 type Measurer interface {
@@ -140,10 +262,16 @@ type Measurer interface {
 }
 ```
 
-The default, `text.Arial`, estimates widths from a table of Arial's character widths without loading any font. It matches Pele's widths exactly, and SVG drawn with it should use Arial or a font of the same width. If you draw text in other fonts, pass a measurer for those fonts. `limumygo.Fonts` is one for MyGo.
+```rust
+pub trait Measurer {
+    fn width(&self, s: &str, size: f64, f: Face) -> f64;
+}
+```
 
-A label's span can also be `text.Sub`, `text.Sup` or `text.Underline`. Layout asks the measurer only about `Bold`, `Italic` and `Mono`. It measures subscript and superscript at the font size divided by 1.2, as Pele does, so a backend should draw them that much smaller and lowered or raised. An underline takes no room.
+The default, `go:text.Arial` `rust:limu::layout::Arial`, estimates widths from a table of Arial's character widths without loading any font. It matches Pele's widths exactly, and SVG drawn with it should use Arial or a font of the same width. If you draw text in other fonts, pass a measurer for those fonts. In Go, `limumygo.Fonts` is one for MyGo. In Rust, each native backend has one for the fonts it draws in.
+
+A label's span can also be subscript, superscript or underlined. Layout asks the measurer only about bold, italic and the monospace face. It measures subscript and superscript at the font size divided by 1.2, as Pele does, so a backend should draw them that much smaller and lowered or raised. An underline takes no room.
 
 ### Chinese, Japanese and Korean
 
-`text.Arial` treats every Chinese, Japanese and Korean character as one em wide, which is only an estimate. Real fonts may be narrower or wider. When a label is too wide, it wraps between words. Like Pele 1.6, it also wraps between any two Chinese or Japanese characters, but never before a closing punctuation mark or after an opening one. Korean wraps only between words. If you draw this kind of text, measure it with the fonts you draw it in.
+The default measurer treats every Chinese, Japanese and Korean character as one em wide, which is only an estimate. Real fonts may be narrower or wider. When a label is too wide, it wraps between words. Like Pele 1.6, it also wraps between any two Chinese or Japanese characters, but never before a closing punctuation mark or after an opening one. Korean wraps only between words. If you draw this kind of text, measure it with the fonts you draw it in.

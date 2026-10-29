@@ -10,8 +10,9 @@ const (
   text[Mermaid text] --> layout[Layout] --> svg[SVG] --> browser[Browser]`
 	limuSource = `flowchart LR
   text[Mermaid text] --> layout[Layout] --> scene[Scene]
-  scene --> mygo[MyGo, on the GPU]
   scene --> svg[SVG]
+  scene --> gpu[MyGo or GPUI, on the GPU]
+  scene --> bitmap[tiny-skia or Core Graphics]
   scene --> own[A backend of your own]`
 )
 

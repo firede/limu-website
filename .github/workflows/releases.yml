@@ -1,7 +1,7 @@
 name: releases
 
-# Fails while the site doesn't follow the latest release of limu or limumygo, so a release
-# the site was left behind by shows as a failed run. README.md says how to follow one.
+# Fails while the site doesn't follow the latest release of limu, limumygo or limu-rs, so a
+# release the site was left behind by shows as a failed run. README.md says how to follow one.
 on:
   schedule:
     - cron: "17 1 * * *"

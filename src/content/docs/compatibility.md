@@ -3,7 +3,7 @@ title: "Compatibility"
 description: "Supported diagram types, and how limu differs from Pele and Mermaid."
 ---
 
-limu parses Mermaid text the way [Pele](https://pele.run) 1.12.0 does and produces the same layout, number for number. Where limu differs from Mermaid, it's almost always because Pele does.
+limu and limu-rs parse Mermaid text the way [Pele](https://pele.run) 1.12.0 does and produce the same layout, number for number. Where limu differs from Mermaid, it's almost always because Pele does.
 
 ## Diagram types
 
@@ -45,7 +45,7 @@ limu supports every diagram type Pele draws, which covers every type built into 
 | Treemap | `treemap`, `treemap-beta` |
 | Info | `info` |
 
-ZenUML and other external Mermaid plugins aren't supported. Use `limu.Supports` to check whether limu supports a text's type.
+ZenUML and other external Mermaid plugins aren't supported. Use `go:limu.Supports` `rust:limu::supports` to check whether limu supports a text's type.
 
 Every type supports front matter, `%%{init}%%` directives, comments, and the accessibility title and description (`accTitle`, `accDescr`). Which configuration settings each type honors is the same as in Pele.
 
@@ -54,6 +54,8 @@ Every type supports front matter, `%%{init}%%` directives, comments, and the acc
 ### Pele's API in limu
 
 Pele renders SVG in a browser, while limu lays out a scene for a backend to draw. Pele's options are therefore spread across limu's stages.
+
+<div data-lang-only="go">
 
 | Pele | limu |
 | --- | --- |
@@ -69,7 +71,27 @@ Pele renders SVG in a browser, while limu lays out a scene for a backend to draw
 | `icons` | `layout.Options.Icons`, plus the svg package's `IconMarkup` or limumygo's `DrawIcon` |
 | `--pele-*` variables, `pele-*` classes | `--limu-*` variables, `limu-*` classes |
 
-Features that only make sense in a browser aren't ported. `mount`, its zoom and `refresh` are left to the app, which can do the same with the scene, for example through limumygo's `Options.Scale`. The SVG options `responsive`, `idPrefix`, `linkRel`, `outputLimit` and `sanitize` aren't ported either. Neither are the entry points that load diagram types on demand, since a Go program only links what it imports.
+</div>
+
+<div data-lang-only="rust">
+
+| Pele | limu-rs |
+| --- | --- |
+| `render(source, options)` | `limu::layout`, then a backend such as `svg::render` |
+| `parse(source, options)` | `limu::parse` |
+| `supports` | `limu::supports` |
+| `type`, `mermaidType` | `Diagram::diagram_type()`, `Diagram::mermaid_type()` |
+| `PeleError` and its codes | `limu::Error` and `ErrorCode` |
+| `limit`, `maxEdges`, `config` | `limu::ParseOptions` |
+| `measurer`, `fontSize`, `maxWidth`, `autoDirection`, `directionBreakpoint`, `padding`, `monospace`, `now` | `limu::layout::Options`, where `keep_direction` is the opposite of `autoDirection` |
+| `links`, `images`, `linkSchemes`, `imageSchemes` | `limu::layout::Options` and `svg::Options` |
+| `fontFamily`, `fontFamilyMono` | `svg::Options`'s `font_family` and `mono_family` |
+| `icons` | `limu::layout::Options::icons`, plus `svg::Options::icon_markup` or a native backend's icons |
+| `--pele-*` variables, `pele-*` classes | `--limu-*` variables, `limu-*` classes |
+
+</div>
+
+Features that only make sense in a browser aren't ported. `mount`, its zoom and `refresh` are left to the app, which can do the same with the scene, for example through the scale of a native backend's options. The SVG options `responsive`, `idPrefix`, `linkRel`, `outputLimit` and `sanitize` aren't ported either. Neither are the entry points that load diagram types on demand. A Go program only links what it imports, and a Rust program turns off the features of the types it doesn't read.
 
 Pele's `math` option isn't ported. With it, Pele typesets `$$…$$` in a label through a function the app gives. Without it, Pele keeps the label as text, and limu always does.
 
@@ -77,7 +99,7 @@ Pele's `math` option isn't ported. With it, Pele typesets `$$…$$` in a label t
 
 limu draws a few things differently from Pele.
 
-An info diagram shows "limu" and the build's version instead of Pele's.
+An info diagram shows limu's name and version instead of Pele's.
 
 Pele passes the author's `font-family`, `letter-spacing`, `word-spacing` and `text-decoration` on to the text, and in treemaps and venn diagrams it also applies a weight or size it didn't measure the text with. limu reads only the font's weight, style and size, and only where layout measures text with them, because text drawn differently from how it was measured won't fit the space layout gave it.
 
@@ -85,13 +107,13 @@ Pele writes a sankey label and its value as one piece of text with the value in 
 
 A link whose host name isn't ASCII is converted to Punycode without the full UTS #46 mapping, so a few such host names come out differently from Node's.
 
-limumygo draws the same picture as the svg package, apart from the few differences listed under [MyGo](/mygo#painting).
+The native backends draw the same picture as the SVG backend, apart from the few differences each one's page lists, such as [MyGo's](/mygo#painting).
 
-limu produces the same layout on every platform Go supports, and its tests compare against Pele on both amd64 and arm64.
+limu and limu-rs produce the same layout on every platform, and their tests compare against Pele on both amd64 and arm64.
 
 ### Text
 
-In a browser, Pele measures text with the fonts it draws in. Without fonts, it uses a table of Arial's character widths. limu measures with the measurer you give it. `text.Arial` is the same table, so with it, limu's layout matches Pele's to the last bit. Chinese, Japanese and Korean text wraps the way it does in Pele 1.6. See [Measuring text](/api#chinese-japanese-and-korean).
+In a browser, Pele measures text with the fonts it draws in. Without fonts, it uses a table of Arial's character widths. limu measures with the measurer you give it. The default measurer, `go:text.Arial` `rust:limu::layout::Arial`, is the same table, so with it, limu's layout matches Pele's to the last bit. Chinese, Japanese and Korean text wraps the way it does in Pele 1.6. See [Measuring text](/api#chinese-japanese-and-korean).
 
 ## Differences from Mermaid
 
@@ -103,7 +125,7 @@ Colors come from limu's [themes](/theming). Mermaid's themes and `themeVariables
 
 ### Sizing
 
-Diagrams that can get narrower do so to fit `layout.Options.MaxWidth`. A wide flowchart, for example, may run down instead of across. Set `KeepDirection` to prevent that.
+Diagrams that can get narrower do so to fit the layout's maximum width, `go:MaxWidth` `rust:max_width`. A wide flowchart, for example, may run down instead of across. Set `go:KeepDirection` `rust:keep_direction` to prevent that.
 
 ### Subgraphs
 
@@ -119,12 +141,12 @@ Labels support line breaks, bold and italic, written with `<br>`, `<b>` and `<i>
 
 ### Interaction
 
-A `click` that opens a link sets the item's `Link`, and your app decides whether to follow it. A `click` that calls a function is ignored.
+A `click` that opens a link sets the item's link, and your app decides whether to follow it. A `click` that calls a function is ignored.
 
 ### Icons
 
-Your app supplies icons such as `fa:fa-car`. See [MyGo](/mygo#icons-and-images) and [SVG](/svg#icons). Architecture and tree view diagrams also have built-in symbols.
+Your app supplies icons such as `fa:fa-car`. See [SVG](/svg#icons) and the page of each native backend, such as [MyGo](/mygo#icons-and-images). Architecture and tree view diagrams also have built-in symbols.
 
 ## Reporting differences
 
-If limu parses or lays out a diagram differently from Pele, that's a bug in limu. Open the diagram in limu's [playground](/playground) and in [Pele's](https://pele.run/playground), then [report the difference](https://github.com/firede/limu/issues). If Pele draws it the same way and both differ from Mermaid, report it to [Pele](https://github.com/obsidianmd/pele/issues) instead.
+If limu or limu-rs parses or lays out a diagram differently from Pele, that's a bug in the port. Open the diagram in limu's [playground](/playground) and in [Pele's](https://pele.run/playground), then report the difference to [limu](https://github.com/firede/limu/issues) or [limu-rs](https://github.com/firede/limu-rs/issues). If Pele draws it the same way and both differ from Mermaid, report it to [Pele](https://github.com/obsidianmd/pele/issues) instead.

@@ -2,6 +2,8 @@
 // script in BaseLayout's head sets it on the root, as data-lang, before the page is drawn,
 // and CSS shows only what is for it. Go is the language until another is picked.
 
+import { repositoryUrl, rustRepositoryUrl } from '../lib/site';
+
 export type Language = 'go' | 'rust';
 
 const storageKey = 'limu-lang';
@@ -21,6 +23,11 @@ function show(language: Language) {
     const url = new URL(link.href);
     url.pathname = playgroundPath(language);
     link.href = url.toString();
+  });
+  // The link to GitHub goes to the repository of the language.
+  document.querySelectorAll<HTMLAnchorElement>('a[data-repository-link]').forEach((link) => {
+    link.href = language === 'rust' ? rustRepositoryUrl : repositoryUrl;
+    link.setAttribute('aria-label', `${language === 'rust' ? 'limu-rs' : 'limu'} on GitHub`);
   });
   document.dispatchEvent(new CustomEvent('limu:language', { detail: language }));
 }
