@@ -31,7 +31,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: go vet ./gen
+      - run: go vet ./gen && go test ./gen
       - run: pnpm check
       - run: pnpm playground
       - run: pnpm build

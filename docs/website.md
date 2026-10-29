@@ -162,7 +162,8 @@ The web playground and the desktop one are one program, so they can't drift apar
 place to try limu, not a full application. It has the editor, the diagram and its SVG,
 light and dark, a link to share, SVG and PNG downloads, and an Examples menu of limu's
 gallery. It has no opening or saving of files and no page of examples, and its colors are
-the site's, from `base.scss`, which a test holds them to. A diagram comes in through the
+the site's, from `base.scss`. `gen`'s TestPalettes holds the playground of the release
+`go.mod` requires to them. A diagram comes in through the
 URL, as in Pele's playground, and Copy link writes one. Without a page of examples, the
 playground needs no router, which in a browser would take over the URL's fragment.
 
