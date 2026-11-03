@@ -113,7 +113,7 @@ limu-rs and limu produce the same layout on every platform, and their tests comp
 
 ### Text
 
-In a browser, Pele measures text with the fonts it draws in. Without fonts, it uses a table of Arial's character widths. limu measures with the measurer you give it. The default measurer, `rust:limu::layout::Arial` `go:text.Arial`, is the same table, so with it, limu's layout matches Pele's to the last bit. Chinese, Japanese and Korean text wraps the way it does in Pele 1.6. See [Measuring text](/api#chinese-japanese-and-korean).
+In a browser, Pele measures text with the fonts it draws in. Without fonts, it uses a table of Arial's character widths. limu measures with the measurer you give it. The default measurer, `rust:limu::layout::Arial` `go:text.Arial`, is the same table, so with it, limu's layout matches Pele's to the last bit. Chinese, Japanese and Korean text wraps as it does in Pele. See [Measuring text](/api#chinese-japanese-and-korean).
 
 ## Differences from Mermaid
 

@@ -274,4 +274,4 @@ A label's span can also be subscript, superscript or underlined. Layout asks the
 
 ### Chinese, Japanese and Korean
 
-The default measurer treats every Chinese, Japanese and Korean character as one em wide, which is only an estimate. Real fonts may be narrower or wider. When a label is too wide, it wraps between words. Like Pele 1.6, it also wraps between any two Chinese or Japanese characters, but never before a closing punctuation mark or after an opening one. Korean wraps only between words. If you draw this kind of text, measure it with the fonts you draw it in.
+The default measurer treats every Chinese, Japanese and Korean character as one em wide, which is only an estimate. Real fonts may be narrower or wider. When a label is too wide, it wraps between words. Like Pele, it also wraps between any two Chinese or Japanese characters, but never before a closing punctuation mark or after an opening one. Korean wraps only between words. If you draw this kind of text, measure it with the fonts you draw it in.

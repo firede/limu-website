@@ -113,7 +113,7 @@ limu-rs 和 limu 在每个平台上都得到相同的布局，它们的测试在
 
 ### 文本 {#text}
 
-在浏览器中，Pele 用绘制时的字体测量文本。没有字体时，它使用一张 Arial 字符宽度表。limu 用你提供的测量器测量。默认测量器 `rust:limu::layout::Arial` `go:text.Arial` 就是这张表，所以使用它时，limu 的布局与 Pele 精确到最后一位。中文、日文和韩文的换行方式与 Pele 1.6 相同。参见[测量文本](/api#chinese-japanese-and-korean)。
+在浏览器中，Pele 用绘制时的字体测量文本。没有字体时，它使用一张 Arial 字符宽度表。limu 用你提供的测量器测量。默认测量器 `rust:limu::layout::Arial` `go:text.Arial` 就是这张表，所以使用它时，limu 的布局与 Pele 精确到最后一位。中文、日文和韩文的换行方式与 Pele 相同。参见[测量文本](/api#chinese-japanese-and-korean)。
 
 ## 与 Mermaid 的差异 {#differences-from-mermaid}
 
