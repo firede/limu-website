@@ -165,3 +165,36 @@ limu reads `fill`, `stroke`, `color`, the opacities, `stroke-width`, `stroke-das
 The author's styles sit above your overrides. Their colors are fixed and don't change with the theme.
 
 When the author fills a part and sets no color for its text, the text is drawn in the theme's foreground or background, whichever stands out more against the fill, as Pele does. The same goes for edges and labels that lie inside a group the author fills, such as a subgraph, a block or a sequence diagram's box. An edge that crosses the border of such a fill is drawn over a casing in the background's color, so it stays visible where it runs over the fill. A casing is an item with a role of its own, such as `block.casing`. A group that a diagram draws translucent, such as a block diagram's composite block, is drawn opaque when the author fills it.
+
+### Palettes
+
+A diagram's text can also set its series colors with Mermaid's palette theme variables, in front matter or an `init` directive. Pie charts read `pie1` to `pie8`, git graphs `git0` to `git7`, timelines, radar charts and treemaps `cScale0` to `cScale7`, and mindmaps `cScale1` to `cScale8`. Venn diagrams read `venn1` to `venn8` and repeat the ones that are set, and XY charts read a list in `xyChart.plotColorPalette`, which repeats too.
+
+```mermaid
+---
+config:
+  themeVariables:
+    pie1: "#3d6aa3"
+    pie2: "#e3a040"
+---
+pie
+  "Done": 7
+  "Left": 3
+```
+
+limu treats a palette as the author's colors, like a `style` line. A part drawn in a series the palette sets takes its color, above your overrides, and a label on it takes the theme's foreground or background, whichever stands out more. limu reads hex codes, color names, `rgb()`, `hsl()`, `transparent` and `currentColor`. A color it can't evaluate on its own, such as `var()`, `color-mix()` or `oklch()`, leaves the series in the theme's color.
+
+### Drawing with the theme alone
+
+On a page whose look is set by design tokens, a diagram's text shouldn't change it. Set `rust:theme_only` `go:ThemeOnly` on the look, and the backend draws with the theme and your overrides alone. It leaves out the author's styles, palettes among them, the colors picked for what lies on an author's fill, and the casings.
+
+```rust
+let mut look = Look::new(Theme::KOHU);
+look.theme_only = true;
+```
+
+```go
+look := style.Look{Theme: style.Kohu(), ThemeOnly: true}
+```
+
+The look changes only how things are drawn. What the author set that changes a size stays, since layout measured it, such as the weight, slant and size of text and the radius of a quadrant chart's point.

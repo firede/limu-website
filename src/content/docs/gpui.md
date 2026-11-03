@@ -9,14 +9,14 @@ limu-rs is young, and its API will change in any 0.x release.
 
 ## Installing
 
-limu-gpui builds on [gpui-pre](https://crates.io/crates/gpui-pre) 0.3.10, the weekly snapshot of Zed's GPUI published on crates.io, and your app needs the same. Name it `gpui` in `Cargo.toml`, so the paths its macros write resolve. On macOS, GPUI sets text only with the `font-kit` feature of gpui-pre-platform. Without it every glyph is missing. An app that needs a GPUI of its own, such as one with patches, can put it in gpui-pre's place for every crate in its build with `[patch.crates-io]`.
+limu-gpui builds on [gpui-pre](https://crates.io/crates/gpui-pre) 0.3.11, the weekly snapshot of Zed's GPUI published on crates.io, and your app needs the same. Name it `gpui` in `Cargo.toml`, so the paths its macros write resolve. On macOS, GPUI sets text only with the `font-kit` feature of gpui-pre-platform. Without it every glyph is missing. An app that needs a GPUI of its own, such as one with patches, can put it in gpui-pre's place for every crate in its build with `[patch.crates-io]`.
 
 ```toml
 [dependencies]
-gpui = { package = "gpui-pre", version = "0.3.10" }
-gpui_platform = { package = "gpui-pre-platform", version = "0.3.10", features = ["font-kit"] }
-limu = "0.1"
-limu-gpui = "0.1"
+gpui = { package = "gpui-pre", version = "0.3.11" }
+gpui_platform = { package = "gpui-pre-platform", version = "0.3.11", features = ["font-kit"] }
+limu = "0.2"
+limu-gpui = "0.2"
 ```
 
 In limu-rs's repository, limu-gpui is a workspace of its own, in `crates/limu-gpui`. GPUI takes long to build and builds only where it has a platform, so the other crates' checks leave it out. The examples below use `limu::scene`, which is the limu-scene crate as limu re-exports it.

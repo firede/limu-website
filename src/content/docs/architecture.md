@@ -108,7 +108,7 @@ A backend walks the scene's items in order and draws each one. It fills and stro
 
 ## Ported from Pele
 
-Most of limu is ported function by function from [Pele](https://pele.run), the Mermaid renderer made by the Obsidian team. The ports keep Pele's names, in Rust's case and in Go's, so each codebase can be read side by side with Pele. limu-rs is ported from Pele too, not from limu. Both follow Pele 1.12.0.
+Most of limu is ported function by function from [Pele](https://pele.run), the Mermaid renderer made by the Obsidian team. The ports keep Pele's names, in Rust's case and in Go's, so each codebase can be read side by side with Pele. limu-rs is ported from Pele too, not from limu. Both follow Pele 1.13.0.
 
 Their tests check their output against Pele's, number for number. A tool called the oracle runs Pele's TypeScript source with Node over more than a hundred thousand diagrams, taken from Pele's tests and documentation and from variations of them, and saves Pele's output as fixtures. limu's oracle is part of limu. limu-rs downloads its fixtures from the releases of [pele-oracle](https://github.com/firede/pele-oracle), which grew out of limu's. The tests compare against those fixtures, and even a difference in the last bit of a number counts as a bug in the port. The tests run on both amd64 and arm64.
 

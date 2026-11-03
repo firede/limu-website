@@ -3,7 +3,7 @@ title: "Compatibility"
 description: "Supported diagram types, and how limu differs from Pele and Mermaid."
 ---
 
-limu-rs and limu parse Mermaid text the way [Pele](https://pele.run) 1.12.0 does and produce the same layout, number for number. Where limu differs from Mermaid, it's almost always because Pele does.
+limu-rs and limu parse Mermaid text the way [Pele](https://pele.run) 1.13.0 does and produce the same layout, number for number. Where limu differs from Mermaid, it's almost always because Pele does.
 
 ## Diagram types
 
@@ -121,7 +121,7 @@ In a browser, Pele measures text with the fonts it draws in. Without fonts, it u
 
 limu lays out diagrams the way Pele does, which isn't how Mermaid does it. Node positions, spacing and edge paths all differ. Where Mermaid hands a diagram to an outside library, Pele often uses a layout of its own. Pele puts architecture diagrams on a grid where Mermaid uses a force-directed solver, and C4 and block diagrams have their own placement and routing.
 
-Colors come from limu's [themes](/theming). Mermaid's themes and `themeVariables` don't apply.
+Colors come from limu's [themes](/theming). Mermaid's themes don't apply, and of its `themeVariables` limu reads only the [palettes](/theming#palettes) that set a diagram's series colors, as Pele does.
 
 ### Sizing
 
