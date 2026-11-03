@@ -3,7 +3,7 @@ title: "MyGo"
 description: "Draw diagrams natively with limumygo, and find the part under the pointer."
 ---
 
-The limumygo package draws limu's scenes on the GPU with [MyGo](https://mygo.egoist.dev)'s native UI, and tells you which part of a diagram is under the pointer. This is what limu was built for. The diagram lives in your app's own window, uses your app's fonts, and can answer questions about itself.
+The limumygo package draws limu's scenes on the GPU with [MyGo](https://mygo.egoist.dev)'s native UI, and tells you which part of a diagram is under the pointer. The diagram is drawn in your app's own window, in your app's fonts.
 
 ## Installing
 
@@ -81,7 +81,7 @@ To fit a diagram to its element, read the element's width from `LayoutBounds`, w
 
 ### Finding the item under the pointer
 
-`limumygo.ItemAt` finds the item at a point in scene coordinates, without needing a widget. When several items overlap, it returns the one drawn last, which is the one on top. A point hits an item when it's inside the item's box or its label's box. Edges and items made only of lines are hit when the point is within a tolerance of a line or inside one of their markers. The widget uses `limumygo.Slop`, which is 4 DIPs.
+`limumygo.ItemAt` finds the item at a point in scene coordinates, without needing a widget. When several items overlap, it returns the one drawn last, which is the one on top. A point hits an item when it's inside the item's box or its label's box. Edges and items made only of lines are hit when the point is within a tolerance of a line or inside one of their markers. The widget uses `limumygo.Slop`, which is 4 DIPs, MyGo's device-independent pixels.
 
 ```go
 if it := limumygo.ItemAt(sc, scene.Point{X: x, Y: y}, limumygo.Slop); it != nil {
@@ -100,7 +100,7 @@ ui.Box(c).Size(float32(sc.Width*2), float32(sc.Height*2)).Draw(func(p *ui.Painte
 })
 ```
 
-`Options.Scale` sets how many DIPs one scene unit takes. To zoom or pan, change the scale and the point you draw at, rather than draw under `ui.Painter.Transform` or inside a transformed element. A transformed diagram is still drawn whole. But MyGo draws each path from a mask made at the painter's scale, and a transform stretches it, so a diagram zoomed in this way looks blurred. A very large path can also show faint lines where its tiles meet.
+`Options.Scale` sets how many DIPs one scene unit takes. To zoom or pan, change the scale and the point you draw at. Don't draw under `ui.Painter.Transform` or inside a transformed element. MyGo draws each path from a mask made at the painter's scale, and a transform stretches the mask, so a diagram zoomed this way looks blurred. A very large path can also show faint lines where its tiles meet.
 
 limumygo draws the same picture as the svg package, with a few differences.
 

@@ -1,0 +1,39 @@
+---
+// The page of a type's examples, in English at /examples/<type> and in Chinese at
+// /zh/examples/<type>.
+import DiagramThemeSwitch from './DiagramThemeSwitch.astro';
+import ExampleCard from './ExampleCard.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import { exampleTypeHref, slug, type ExampleType } from '../lib/examples';
+import { typeDescription, typeTitle } from '../lib/examples-zh';
+import { localeOf, localePath } from '../lib/i18n';
+
+interface Props {
+  t: ExampleType;
+  previous?: ExampleType;
+  next?: ExampleType;
+}
+
+const { t, previous, next } = Astro.props;
+const locale = localeOf(Astro.url.pathname);
+const zh = locale === 'zh';
+const title = typeTitle(locale, t);
+// The sidebar lists the page's examples under its title, as the overview lists the types.
+const headings = t.examples.map((example) => ({ depth: 2, slug: slug(example.title), text: example.title }));
+---
+
+<DocsLayout current="examples" title={title} description={typeDescription(locale, t)} headings={headings} markdownPath={`${exampleTypeHref(t.type)}.md`} child={title}>
+  <div data-diagram-scope>
+    <DiagramThemeSwitch />
+    {t.beta && <p>{zh ? `${title}目前是 Beta，用 -beta 声明，因为 Mermaid 可能还会修改它。` : `${t.title} diagrams are in beta. They are declared with -beta because Mermaid may still change them.`}</p>}
+    {t.examples.map((example) => <ExampleCard example={example} typeTitle={title} id={slug(example.title)} />)}
+  </div>
+  <nav class="example-pager" aria-label={zh ? '图表类型' : 'Types of diagram'}>
+    {previous ? <a class="example-pager-link" href={localePath(locale, exampleTypeHref(previous.type))}><span>{zh ? '上一个' : 'Previous'}</span>{typeTitle(locale, previous)}</a> : <span />}
+    {next && <a class="example-pager-link is-next" href={localePath(locale, exampleTypeHref(next.type))}><span>{zh ? '下一个' : 'Next'}</span>{typeTitle(locale, next)}</a>}
+  </nav>
+</DocsLayout>
+
+<script>
+  import '../scripts/examples';
+</script>

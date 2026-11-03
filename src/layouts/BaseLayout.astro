@@ -2,8 +2,8 @@
 import hankenLatin from '@fontsource-variable/hanken-grotesk/files/hanken-grotesk-latin-wght-normal.woff2?url';
 import '../generated/limu-theme.css';
 import '../styles/global.scss';
+import { alternatePath, englishPath, htmlLang, localeOf, localePath, ui } from '../lib/i18n';
 import { formatPageTitle } from '../lib/page-title';
-import { siteDescription } from '../lib/site';
 
 interface Props {
   title?: string;
@@ -13,17 +13,22 @@ interface Props {
   noindex?: boolean;
 }
 
-const { title, description = siteDescription, markdownPath, noindex = false } = Astro.props;
-const pageTitle = formatPageTitle(title);
+const locale = localeOf(Astro.url.pathname);
+const { title, description = ui[locale].siteDescription, markdownPath, noindex = false } = Astro.props;
+const pageTitle = formatPageTitle(title, locale);
 const canonicalPath = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 const canonicalUrl = new URL(canonicalPath, Astro.site);
 // The picture a link to any page shows, drawn by limumygo/examples/pictures.
 const socialImage = new URL('/pictures/og.png', Astro.site);
-const socialImageAlt = 'limu, a diagram layout engine in Rust and Go, under the sea, with how it works drawn in bubbles of glass rising from limu kohu.';
+const socialImageAlt = ui[locale].socialImageAlt;
+// The page in English and in Chinese, for a page written in both.
+const alternates = alternatePath(Astro.url.pathname)
+  ? (['en', 'zh'] as const).map((l) => ({ hreflang: htmlLang[l], href: new URL(localePath(l, englishPath(Astro.url.pathname)), Astro.site) }))
+  : [];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={htmlLang[locale]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -35,12 +40,14 @@ const socialImageAlt = 'limu, a diagram layout engine in Rust and Go, under the 
     <link rel="apple-touch-icon" href="/icon-180.png" />
     <link rel="canonical" href={canonicalUrl} />
     {noindex && <meta name="robots" content="noindex" />}
-    {markdownPath && <link rel="alternate" type="text/markdown" href={markdownPath} title={`${title ?? 'limu'} as Markdown`} />}
+    {alternates.map(({ hreflang, href }) => <link rel="alternate" hreflang={hreflang} href={href} />)}
+    {markdownPath && <link rel="alternate" type="text/markdown" href={markdownPath} title={locale === 'zh' ? `${title ?? 'limu'}${ui.zh.asMarkdown}` : `${title ?? 'limu'} ${ui.en.asMarkdown}`} />}
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content="limu" />
+    <meta property="og:locale" content={locale === 'zh' ? 'zh_CN' : 'en_US'} />
     <meta property="og:image" content={socialImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />

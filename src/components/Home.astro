@@ -1,0 +1,172 @@
+---
+// The home page, in English at / and in Chinese at /zh. Its Markdown, which agents read, is
+// content/pages/index.md and content/zh/pages/index.md, which say what this page says.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CodeBlock from './CodeBlock.astro';
+import DocsNavigation from './DocsNavigation.astro';
+import Drawing from './Drawing.astro';
+import Mark from './Mark.astro';
+import SiteFooter from './SiteFooter.astro';
+import SiteHeader from './SiteHeader.astro';
+import home from '../generated/home.json';
+import { localeOf, localePath, ui } from '../lib/i18n';
+import { installs } from '../lib/home';
+import { languageTitles, repositoryUrl, rustRepositoryUrl } from '../lib/site';
+import { platinumPicture, platinumPictureZh, renderPictures, scenePictures, scenePicturesZh } from '../../lib/pictures.mjs';
+
+const locale = localeOf(Astro.url.pathname);
+const zh = locale === 'zh';
+
+const headings = zh
+  ? [
+      { depth: 2, slug: 'how-it-works', text: '工作方式' },
+      { depth: 2, slug: 'in-your-app', text: '在应用中使用 limu' },
+      { depth: 2, slug: 'explore', text: '继续阅读' },
+      { depth: 2, slug: 'limu-and-pele', text: 'limu 与 Pele' },
+    ]
+  : [
+      { depth: 2, slug: 'how-it-works', text: 'How it works' },
+      { depth: 2, slug: 'in-your-app', text: 'limu in your app' },
+      { depth: 2, slug: 'explore', text: 'Explore' },
+      { depth: 2, slug: 'limu-and-pele', text: 'limu and Pele' },
+    ];
+
+// The code of each language, in tabs of their own, as the site's language picks one set.
+const installGroups = (Object.keys(languageTitles) as (keyof typeof languageTitles)[]).map((language) => ({
+  language,
+  installs: installs.filter((install) => install.language === language),
+}));
+
+const explore = zh
+  ? [
+      { href: '/zh/examples', title: '示例', text: 'limu 支持的每种图表，用它的各个主题绘制。' },
+      { href: '/playground/rust', title: 'Playground', text: '边写图表，边看它的布局。', playground: true },
+      { href: '/zh/getting-started', title: '快速上手', text: '布局第一张图表，渲染成 SVG。' },
+      { href: '/zh/theming', title: '主题', text: '用主题和覆盖改颜色，或自己绘制各个部分。' },
+    ]
+  : [
+      { href: '/examples', title: 'Examples', text: 'Every type of diagram limu supports, in each of its themes.' },
+      { href: '/playground/rust', title: 'Playground', text: 'Write a diagram and see it laid out as you type.', playground: true },
+      { href: '/getting-started', title: 'Getting started', text: 'Lay out your first diagram and render it as SVG.' },
+      { href: '/theming', title: 'Theming', text: 'Change colors with themes and overrides, or draw parts yourself.' },
+    ];
+
+const external = { target: '_blank', rel: 'noopener noreferrer' };
+---
+
+<BaseLayout markdownPath={localePath(locale, '/index') + '.md'}>
+  <main id="top" class="docs-page home-page">
+    <SiteHeader current="introduction" headings={headings} />
+    <div class="docs-layout home-layout">
+      <DocsNavigation class="docs-toc" current="introduction" headings={headings} />
+      <div class="home-content">
+        <section class="hero">
+          <Mark size={88} />
+          <h1 class="lede">{ui[locale].siteDescription}</h1>
+        </section>
+
+        {zh ? (
+        <section class="home-section" aria-labelledby="how-it-works">
+          <h2 id="how-it-works">工作方式</h2>
+          <p>Mermaid 和 Pele（limu 移植自这个 Mermaid 渲染器）布局一张图表后，把它写成 SVG，交给浏览器绘制。</p>
+          <figure class="diagram-figure">
+            <figcaption>SVG 渲染器</figcaption>
+            <Drawing drawing={home.rendererZh} label="Mermaid 文本先经过布局，再变成 SVG，最后由浏览器绘制。" />
+          </figure>
+          <p>limu 早一步停下，停在场景（scene）。场景是以数据表示的、已经布局好的图表。它记录每个部分是什么、在哪里，但不记录它长什么样。之后由后端来绘制。limu 提供的后端有在 GPU 上绘制的 GPUI 和 MyGo，绘制到位图的 tiny-skia 和 Core Graphics，绘制到终端字符格的后端，以及 SVG。你也可以自己写一个。</p>
+          <figure class="diagram-figure home-figure-limu">
+            <figcaption>limu</figcaption>
+            <Drawing drawing={home.limuZh} label="Mermaid 文本先经过布局，再变成场景，由 SVG、GPUI 或 MyGo、tiny-skia 或 Core Graphics，或你自己的后端绘制。" />
+          </figure>
+          <p>场景里没有颜色，所以只需布局一次，就能用任意多种方式绘制。切换主题只需重绘，后端也可以按自己的方式绘制每个部分。</p>
+          <Fragment set:html={renderPictures(scenePicturesZh, locale)} />
+          <p>后端还可以更进一步，为自己的外观重新布局图表。<a href="https://github.com/firede/mygo-platinum" {...external}>mygo-platinum</a> 就这样为 Platinum 桌面绘制图表。</p>
+          <Fragment set:html={renderPictures(platinumPictureZh, locale)} />
+          <p>应用还可以向场景查询指针下方是哪个部分。</p>
+        </section>
+        ) : (
+        <section class="home-section" aria-labelledby="how-it-works">
+          <h2 id="how-it-works">How it works</h2>
+          <p>Mermaid and Pele, the Mermaid renderer limu is ported from, lay out a diagram and write it as SVG for a browser to draw.</p>
+          <figure class="diagram-figure">
+            <figcaption>A renderer of SVG</figcaption>
+            <Drawing drawing={home.renderer} label="Mermaid text goes to a layout, then to SVG, then to a browser." />
+          </figure>
+          <p>limu stops one step earlier, at the scene. A scene is the laid-out diagram as data. It says what each part is and where it goes, but not how it looks. A backend then draws it. limu has backends for GPUI and MyGo on the GPU, for tiny-skia and Core Graphics into a bitmap, for a terminal’s cells and for SVG, and you can write your own.</p>
+          <figure class="diagram-figure home-figure-limu">
+            <figcaption>limu</figcaption>
+            <Drawing drawing={home.limu} label="Mermaid text goes to a layout, then to a scene, which SVG, GPUI or MyGo, tiny-skia or Core Graphics, or a backend of your own draws." />
+          </figure>
+          <p>Because the scene holds no colors, it's laid out once and can be drawn any number of ways. Switching themes only redraws it, and a backend can also draw each part its own way.</p>
+          <Fragment set:html={renderPictures(scenePictures)} />
+          <p>A backend can go further and lay a diagram out again for a look of its own, as <a href="https://github.com/firede/mygo-platinum">mygo-platinum</a> does for the Platinum desktop.</p>
+          <Fragment set:html={renderPictures(platinumPicture)} />
+          <p>An app can also ask the scene which part is under the pointer.</p>
+        </section>
+        )}
+
+        <section class="home-section" aria-labelledby="in-your-app">
+          <h2 id="in-your-app">{headings[1].text}</h2>
+          {installGroups.map((group) => (
+            <div class="home-installs" data-lang-only={group.language} data-installs>
+              <div class="segmented-control home-tabs" style={`--segment-count: ${group.installs.length}`} role="group" aria-label={zh ? `${languageTitles[group.language]} 后端` : `${languageTitles[group.language]} backend`}>
+                {group.installs.map(({ id, title, zh: chinese }, index) => (
+                  <button type="button" data-install-tab={id} aria-pressed={index === 0 ? 'true' : 'false'} aria-controls={`install-${id}`}>{zh ? chinese.title ?? title : title}</button>
+                ))}
+              </div>
+              {group.installs.map(({ id, command, note, code, zh: chinese }, index) => (
+                <div class="home-install" id={`install-${id}`} data-install-panel={id} hidden={index !== 0}>
+                  <CodeBlock language="shell" code={command} />
+                  <p>{zh ? chinese.note : note}</p>
+                  <CodeBlock language={group.language} code={zh ? chinese.comments.reduce((out, [en, comment]) => out.replace(en, comment), code) : code} />
+                </div>
+              ))}
+            </div>
+          ))}
+        </section>
+
+        <section class="home-section" aria-labelledby="explore">
+          <h2 id="explore">{headings[2].text}</h2>
+          <nav class="guide-links" aria-label={zh ? '从这些页面开始' : 'Pages to start from'}>
+            {explore.map(({ href, title, text, playground }) => (
+              <a class="guide-link-card" href={href} data-playground-link={playground ? '' : undefined}>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </a>
+            ))}
+          </nav>
+        </section>
+
+        {zh ? (
+        <section class="home-section" aria-labelledby="limu-and-pele">
+          <h2 id="limu-and-pele">limu 与 Pele</h2>
+          <p>limu 逐个函数移植自 <a href="https://pele.run" {...external}>Pele</a>，后者是 <a href="https://obsidian.md" {...external}>Obsidian</a> 团队开发的小巧、快速的 Mermaid 渲染器。共有两个移植版，Rust 版 limu-rs 和 Go 版 limu。两者的测试都逐个数值检查布局是否与 Pele 一致。两者都以 MIT 许可证开源，见 <a href={rustRepositoryUrl} {...external}>Rust 版</a>和 <a href={repositoryUrl} {...external}>Go 版</a>。</p>
+          <p>Pele 得名于夏威夷的火山女神。Limu 在夏威夷语中指海里的藻类。本站的配色取自 limu kohu，一种生长在潮池里的红藻。</p>
+        </section>
+        ) : (
+        <section class="home-section" aria-labelledby="limu-and-pele">
+          <h2 id="limu-and-pele">limu and Pele</h2>
+          <p>limu is ported function by function from <a href="https://pele.run" target="_blank" rel="noopener noreferrer">Pele</a>, the small, fast Mermaid renderer made by the <a href="https://obsidian.md" target="_blank" rel="noopener noreferrer">Obsidian</a> team. There are two ports, limu-rs in Rust and limu in Go, and the tests of each check that its layouts match Pele’s number for number. Both are open source under the MIT license, in <a href={rustRepositoryUrl} target="_blank" rel="noopener noreferrer">Rust</a> and in <a href={repositoryUrl} target="_blank" rel="noopener noreferrer">Go</a>.</p>
+          <p>Pele is named after the goddess of Hawaiʻi’s volcanoes. Limu is the Hawaiian word for the algae in its seas, and this site takes its colors from limu kohu, a red alga that grows in tide pools.</p>
+        </section>
+        )}
+
+        <SiteFooter />
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  // Each language's tabs switch among its own panels.
+  document.querySelectorAll<HTMLElement>('[data-installs]').forEach((group) => {
+    const tabs = group.querySelectorAll<HTMLButtonElement>('[data-install-tab]');
+    const panels = group.querySelectorAll<HTMLElement>('[data-install-panel]');
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((other) => other.setAttribute('aria-pressed', String(other === tab)));
+        panels.forEach((panel) => { panel.hidden = panel.dataset.installPanel !== tab.dataset.installTab; });
+      });
+    });
+  });
+</script>

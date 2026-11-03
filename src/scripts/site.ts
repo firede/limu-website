@@ -3,6 +3,9 @@ const checkIcon = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 2
 
 const copyTimers = new WeakMap<HTMLButtonElement, number>();
 
+// The words the scripts write, in the page's language.
+const t = ui[document.documentElement.lang.startsWith('zh') ? 'zh' : 'en'];
+
 function codeText(button: HTMLButtonElement) {
   if (button.dataset.copyText !== undefined) return button.dataset.copyText;
   const block = button.closest('[data-code-block]');
@@ -15,12 +18,12 @@ function codeText(button: HTMLButtonElement) {
 document.addEventListener('click', async (event) => {
   const button = (event.target as Element).closest<HTMLButtonElement>('[data-copy-code]');
   if (!button) return;
-  const label = button.dataset.copyLabel ?? 'Copy code';
+  const label = button.dataset.copyLabel ?? t.copyCode;
   try {
     await navigator.clipboard.writeText(codeText(button));
     button.dataset.copied = '';
-    button.title = 'Copied';
-    button.setAttribute('aria-label', 'Copied');
+    button.title = t.copied;
+    button.setAttribute('aria-label', t.copied);
     button.innerHTML = checkIcon;
     const previous = copyTimers.get(button);
     if (previous) window.clearTimeout(previous);
@@ -54,21 +57,21 @@ document.addEventListener('click', async (event) => {
       await navigator.clipboard.writeText(await markdown);
     }
     button.dataset.copied = '';
-    button.innerHTML = `${checkIcon}<span>Copy Markdown</span>`;
+    button.innerHTML = `${checkIcon}<span>${t.copyMarkdown}</span>`;
     const previous = copyTimers.get(button);
     if (previous) window.clearTimeout(previous);
     copyTimers.set(button, window.setTimeout(() => {
       delete button.dataset.copied;
-      button.innerHTML = `${copyIcon}<span>Copy Markdown</span>`;
+      button.innerHTML = `${copyIcon}<span>${t.copyMarkdown}</span>`;
     }, 2000));
   } catch {
     button.dataset.copyError = '';
-    button.innerHTML = `${copyIcon}<span>Copy failed</span>`;
+    button.innerHTML = `${copyIcon}<span>${t.copyFailed}</span>`;
     const previous = copyTimers.get(button);
     if (previous) window.clearTimeout(previous);
     copyTimers.set(button, window.setTimeout(() => {
       delete button.dataset.copyError;
-      button.innerHTML = `${copyIcon}<span>Copy Markdown</span>`;
+      button.innerHTML = `${copyIcon}<span>${t.copyMarkdown}</span>`;
     }, 2000));
   } finally {
     button.disabled = false;
@@ -94,7 +97,7 @@ function setupMobileDocsMenu() {
     if (backdrop.contains(document.activeElement)) trigger.focus({ preventScroll: true });
     backdrop.hidden = true;
     trigger.setAttribute('aria-expanded', 'false');
-    trigger.setAttribute('aria-label', 'Open documentation menu');
+    trigger.setAttribute('aria-label', t.openMenu);
     document.documentElement.classList.remove('docs-menu-open');
   };
   const open = () => {
@@ -102,7 +105,7 @@ function setupMobileDocsMenu() {
     document.dispatchEvent(new CustomEvent('limu:overlay-open', { detail: 'docs-menu' }));
     backdrop.hidden = false;
     trigger.setAttribute('aria-expanded', 'true');
-    trigger.setAttribute('aria-label', 'Close documentation menu');
+    trigger.setAttribute('aria-label', t.closeMenu);
     document.documentElement.classList.add('docs-menu-open');
     updateMenuTop();
   };
@@ -248,6 +251,14 @@ function setupThemeSwitch() {
   });
 }
 
+// The link to the page in the other locale keeps the reader's place, as both have the same
+// anchors.
+document.addEventListener('click', (event) => {
+  const link = (event.target as Element).closest<HTMLAnchorElement>('a[data-locale-link]');
+  if (link) link.hash = window.location.hash;
+});
+
+import { ui } from '../lib/i18n';
 import { setupLanguage } from './language';
 import { setupOutline } from './outline';
 

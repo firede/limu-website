@@ -1,9 +1,15 @@
 ---
 import FooterNav from './FooterNav.astro';
+import { localeOf, ui } from '../lib/i18n';
 import { repositoryUrl, rustRepositoryUrl } from '../lib/site';
+
+// The note is text and links in turn, the links to the Rust and Go repositories and to Pele,
+// in the order the language writes them.
+const note = ui[localeOf(Astro.url.pathname)].footerNote;
+const hrefs = [rustRepositoryUrl, repositoryUrl, 'https://pele.run'];
 ---
 
 <footer class="site-footer">
   <FooterNav />
-  <p class="footer-note">limu-rs and limu are open source under the MIT license, in <a href={rustRepositoryUrl} target="_blank" rel="noopener noreferrer">Rust</a> and in <a href={repositoryUrl} target="_blank" rel="noopener noreferrer">Go</a>. Both are ported from <a href="https://pele.run" target="_blank" rel="noopener noreferrer">Pele</a>, by the Obsidian team.</p>
+  <p class="footer-note">{note.map((part, i) => (i % 2 === 1 ? <a href={hrefs[(i - 1) / 2]} target="_blank" rel="noopener noreferrer">{part}</a> : part))}</p>
 </footer>

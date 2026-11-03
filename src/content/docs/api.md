@@ -81,7 +81,7 @@ Laying out a text is the same as parsing it with default options and then laying
 
 ## Parsing
 
-The parsing options, `rust:limu::ParseOptions` `go:diagram.Options`, set the limits for the text and any configuration to apply beneath the diagram's own.
+The parsing options, `rust:limu::ParseOptions` `go:diagram.Options`, set the limits for the text, and configuration that applies wherever the diagram doesn't set its own.
 
 ```rust
 use limu::{Map, Value};
@@ -102,7 +102,7 @@ d, err := limu.Parse(src, diagram.Options{
 })
 ```
 
-The configuration plays the role of Mermaid's. A diagram can also set configuration in its front matter or in an `%%{init: …}%%` directive, and its own settings win key by key. Values follow JSON. In Rust, values are a `limu::Value`, and objects are a `limu::Map`, which keeps its keys in the order JavaScript does. In Go, objects are `diagram.Config`, arrays are `[]any` and numbers are `float64`.
+The configuration works like Mermaid's. A diagram can also set configuration in its front matter or in an `%%{init: …}%%` directive, and its own settings win key by key. Values follow JSON. In Rust, values are a `limu::Value`, and objects are a `limu::Map`, which keeps its keys in the order JavaScript does. In Go, objects are `diagram.Config`, arrays are `[]any` and numbers are `float64`.
 
 ### Limits
 
@@ -131,7 +131,7 @@ Parsing and layout return an error, a `rust:limu::Error` `go:*diagram.Error`, wi
 | `rust:ErrorCode::UnsupportedDiagram` `go:diagram.UnsupportedDiagram` | The text isn't a type limu supports. |
 | `rust:ErrorCode::Syntax` `go:diagram.Syntax` | The text doesn't parse. |
 | `rust:ErrorCode::Semantic` `go:diagram.Semantic` | The text parses but asks for something impossible, such as a shape that doesn't exist. |
-| `rust:ErrorCode::Limit` `go:diagram.Limit` | The text is over a limit, or the scene would contain a number that isn't finite where Pele would draw NaN. |
+| `rust:ErrorCode::Limit` `go:diagram.Limit` | The text is over a limit, or layout would give a number that isn't finite, where Pele would write NaN. |
 
 ## Layout
 
@@ -154,7 +154,7 @@ The layout options, `rust:limu::layout::Options` `go:layout.Options`, hold every
 | `routing` | `Routing::Auto` | Sets how edges run in ranked layouts. `Auto` follows the text, and `Routing::Orthogonal` and `Routing::Straight` override it. |
 | `monospace` | `Monospace::NONE` | Sets which parts are set in the monospace face. `Monospace::MEMBERS` covers the members of class diagrams, `ATTRIBUTES` the types, names and keys of the attributes of entity relationship diagrams, `FILES` the entries of tree views, and `MESSAGES` the messages of sequence diagrams. A part whose author gives it a font keeps it. |
 | `now` | `None`, the time of the layout | Sets the current time for gantt charts, which marks today and starts tasks that have no start date. |
-| `time_zone` | `&Utc` | Sets the time zone gantt charts read and write dates in. The standard library knows no zone but UTC. `FixedOffset` is a zone a fixed number of seconds east of it, and a program that needs a real zone implements `TimeZone`, with a crate such as jiff. |
+| `time_zone` | `&Utc` | Sets the time zone gantt charts read and write dates in. Rust's standard library knows no time zone but UTC. `FixedOffset` is a fixed number of seconds east of UTC, and a program that needs a real time zone implements `TimeZone`, for example with jiff. |
 
 </div>
 
@@ -200,7 +200,7 @@ A scene, `rust:limu::scene::Scene` `go:scene.Scene`, is a laid-out diagram. It h
 | `parts` | The item's outline as paths and boxes, each with how it's painted. |
 | `label` | The measured label, with where and how to draw it. |
 | `picture` | An image or icon the item shows. |
-| `style`, `author` | The diagram's own style for the item, and what the author set with `classDef` and `style`. |
+| `style`, `author` | The diagram's own style for the item, in theme colors, and what the author set with `classDef` and `style`. |
 | `link`, `tooltip` | Where the item links to, and its tooltip. |
 
 </div>
@@ -219,7 +219,7 @@ A scene, `rust:limu::scene::Scene` `go:scene.Scene`, is a laid-out diagram. It h
 | `Route`, `Ends` | For an edge, the corners of its line and the markers at its ends. |
 | `Label`, `At`, `Align`, `Rotate` | The measured label, and where and how to draw it. |
 | `Picture` | An image or icon the item shows. |
-| `Style`, `Author` | The diagram's own style for the item, and what the author set with `classDef` and `style`. |
+| `Style`, `Author` | The diagram's own style for the item, in theme colors, and what the author set with `classDef` and `style`. |
 | `Link`, `Tooltip` | Where the item links to, and its tooltip. |
 
 </div>

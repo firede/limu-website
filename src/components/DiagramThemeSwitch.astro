@@ -2,6 +2,9 @@
 // Draws the examples on the page in Kohu, KohuDark or Default. The diagrams' colors are the
 // --limu-* variables, so switching lays nothing out again. Until a theme is chosen, the
 // diagrams follow the page's: Kohu in the light, KohuDark in the dark.
+import { localeOf, ui } from '../lib/i18n';
+
+const label = ui[localeOf(Astro.url.pathname)].diagramTheme;
 const themes = [
   { id: 'kohu', title: 'Kohu' },
   { id: 'kohu-dark', title: 'Kohu Dark' },
@@ -20,7 +23,7 @@ const themes = [
   })();
 </script>
 <div class="diagram-theme">
-  <span class="diagram-theme-label" id="diagram-theme-label">Theme</span>
+  <span class="diagram-theme-label" id="diagram-theme-label">{label}</span>
   <div class="segmented-control" style={`--segment-count: ${themes.length}`} role="group" aria-labelledby="diagram-theme-label" data-diagram-theme-switch>
     {themes.map(({ id, title }) => <button type="button" data-diagram-theme-option={id} aria-pressed="false">{title}</button>)}
   </div>

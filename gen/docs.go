@@ -14,12 +14,17 @@ import (
 //
 // keyed by its source as Markdown reads it, its lines joined by line feeds, so that the page
 // puts the drawing in the code block's place. The page's Markdown, which agents read, keeps
-// the source.
+// the source. The Chinese documents' diagrams are drawn too.
 func docsDiagrams() map[string]drawing {
 	files, err := filepath.Glob("src/content/docs/*.md")
 	if err != nil {
 		log.Fatal(err)
 	}
+	zh, err := filepath.Glob("src/content/zh/docs/*.md")
+	if err != nil {
+		log.Fatal(err)
+	}
+	files = append(files, zh...)
 	out := map[string]drawing{}
 	for _, f := range files {
 		b, err := os.ReadFile(f)

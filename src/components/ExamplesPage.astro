@@ -1,0 +1,42 @@
+---
+// The examples' overview, in English at /examples and in Chinese at /zh/examples.
+import DiagramThemeSwitch from './DiagramThemeSwitch.astro';
+import ExampleCard from './ExampleCard.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import { exampleTypeHref, exampleTypes, examplesDescription, examplesTitle, featured } from '../lib/examples';
+import { typeDescription, typeTitle } from '../lib/examples-zh';
+import { localeOf, localePath } from '../lib/i18n';
+
+const locale = localeOf(Astro.url.pathname);
+const zh = locale === 'zh';
+const headings = exampleTypes.map((t) => ({ depth: 2, slug: t.type, text: typeTitle(locale, t) }));
+---
+
+<DocsLayout current="examples" title={zh ? '示例' : examplesTitle} description={zh ? 'limu 支持的每种图表，由它的 svg 包在构建本站时渲染。' : examplesDescription} headings={headings} markdownPath="/examples.md">
+  <div data-diagram-scope>
+    <DiagramThemeSwitch />
+    {zh ? (
+      <p>每种图表在这里展示一两个示例，其余的在它自己的页面上。每个示例都能在 Playground 中打开。标为 Beta 的类型用 -beta 声明，因为 Mermaid 可能还会修改它们。示例的标题和图表沿用 limu 示例库的英文原文。</p>
+    ) : (
+      <p>
+        Each type shows one or two examples here, and its own page has the rest. Every
+        example opens in the playground. Types marked beta are declared with -beta because
+        Mermaid may still change them.
+      </p>
+    )}
+    {exampleTypes.map((t) => (
+      <section class="example-type" aria-labelledby={t.type}>
+        <h2 id={t.type}>{typeTitle(locale, t)}{t.beta && <span class="beta-badge">Beta</span>}</h2>
+        <p>{typeDescription(locale, t)}</p>
+        {featured(t).map((example) => <ExampleCard example={example} typeTitle={typeTitle(locale, t)} />)}
+        <p class="example-more"><a href={localePath(locale, exampleTypeHref(t.type))}>{zh
+          ? <>全部 {t.examples.length} 个<span class="visually-hidden">{typeTitle(locale, t)}</span>示例</>
+          : <>All {t.examples.length === 1 ? 'of its 1 example' : `${t.examples.length} examples`}<span class="visually-hidden"> of {t.title}</span></>}</a></p>
+      </section>
+    ))}
+  </div>
+</DocsLayout>
+
+<script>
+  import '../scripts/examples';
+</script>

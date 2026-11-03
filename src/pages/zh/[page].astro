@@ -1,0 +1,17 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import { checkHeadings, getDoc, zhDocs } from '../../lib/docs';
+import type { DocsPageId } from '../../lib/site';
+
+export function getStaticPaths() {
+  return zhDocs.map((doc) => ({ params: { page: doc.id } }));
+}
+
+const id = Astro.params.page as DocsPageId;
+checkHeadings(id);
+const { Content, frontmatter, getHeadings } = getDoc(id, 'zh').module;
+---
+
+<DocsLayout current={id} title={frontmatter.title} description={frontmatter.description} headings={getHeadings()} markdownPath={`/zh/${id}.md`}>
+  <Content />
+</DocsLayout>

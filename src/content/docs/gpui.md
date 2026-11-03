@@ -9,7 +9,7 @@ limu-rs is young, and its API will change in any 0.x release.
 
 ## Installing
 
-limu-gpui builds on [gpui-pre](https://crates.io/crates/gpui-pre) 0.3.11, the weekly snapshot of Zed's GPUI published on crates.io, and your app needs the same. Name it `gpui` in `Cargo.toml`, so the paths its macros write resolve. On macOS, GPUI sets text only with the `font-kit` feature of gpui-pre-platform. Without it every glyph is missing. An app that needs a GPUI of its own, such as one with patches, can put it in gpui-pre's place for every crate in its build with `[patch.crates-io]`.
+limu-gpui builds on [gpui-pre](https://crates.io/crates/gpui-pre) 0.3.11, a weekly snapshot of Zed's GPUI published on crates.io, and your app needs the same version. Name it `gpui` in `Cargo.toml`, so that the paths its macros write resolve. On macOS, turn on gpui-pre-platform's `font-kit` feature, or no text is drawn. To use a GPUI of your own, such as one with patches, put it in gpui-pre's place for the whole build with `[patch.crates-io]`.
 
 ```toml
 [dependencies]
@@ -19,7 +19,7 @@ limu = "0.2"
 limu-gpui = "0.2"
 ```
 
-In limu-rs's repository, limu-gpui is a workspace of its own, in `crates/limu-gpui`. GPUI takes long to build and builds only where it has a platform, so the other crates' checks leave it out. The examples below use `limu::scene`, which is the limu-scene crate as limu re-exports it.
+The examples below use `limu::scene`, which is the limu-scene crate as limu re-exports it.
 
 ## Showing a diagram
 
@@ -107,7 +107,7 @@ To zoom or pan, change the scale and the point you paint at. To fit a diagram to
 
 ### Finding the item under the pointer
 
-`Scene::item_at` finds the item at a point in the scene's units and returns its index in `scene.items`. When several items overlap, it returns the one drawn last, which is the one on top. A point hits an item when it's inside the item's box or its label's box. Edges and items made only of lines are hit when the point is within a slop of a line or inside one of their markers.
+`Scene::item_at` finds the item at a point in the scene's units and returns its index in `scene.items`. When several items overlap, it returns the one drawn last, which is the one on top. A point hits an item when it's inside the item's box or its label's box. Edges and items made only of lines are hit when the point is within a tolerance of a line or inside one of their markers.
 
 To use it in a window, turn the pointer's position back into the scene's units with the origin and scale you painted at. This listener goes in the canvas's paint closure, after `paint`, where `scale` is the scale given to `paint` and `this` is `cx.entity()`, taken in `render`.
 
@@ -133,7 +133,7 @@ window.on_mouse_event(move |e: &MouseDownEvent, phase, _, cx| {
 });
 ```
 
-The slop here is 4 pixels, given in the scene's units. An item's `tooltip` holds the text to show when it's pointed at, and its `link` holds where it leads. limu-gpui opens no links on its own. Open them the same way your app opens any other link, or don't.
+The tolerance here is 4 pixels, given in the scene's units. An item's `tooltip` holds the text to show when it's pointed at, and its `link` holds where it leads. limu-gpui opens no links on its own. Open them the same way your app opens any other link, or don't.
 
 ## Fonts
 
@@ -150,13 +150,13 @@ let measurer = TextMeasurer::new(window, fonts.clone());
 // Lay out with the measurer, and paint with Options { fonts, .. }.
 ```
 
-Upright text that is filled is shaped by the same text system the measurer uses, and painted glyph by glyph on its baseline. GPUI paints a glyph only upright and only filled, so two kinds of text take another way. A label limu turns, such as an axis title or a swimlane's name, and the halo drawn about a label's letters are written as SVG text, which GPUI's SVG renderer draws as a mask and turns as it turns icons. That text is shaped by usvg rather than by GPUI's text system, in the system's fonts and the fonts your app bundles as assets. A family you only add to GPUI's text system isn't found there.
+Most text is shaped by the same text system the measurer uses, and painted glyph by glyph on its baseline. GPUI paints glyphs only upright and filled, so two kinds of text are drawn as SVG text instead. These are turned labels, such as an axis title or a swimlane's name, and the halo around a label's letters. usvg, the SVG library GPUI draws icons with, shapes that text in the system's fonts and the fonts your app bundles as assets, so a family you add only to GPUI's text system isn't found there.
 
 ## What GPUI draws differently
 
 limu-gpui draws the same picture as the SVG writer, as far as GPUI lets it.
 
-- GPUI has no layers drawn apart, so limu-gpui applies an item's opacity to each of its colors. Where an item's parts overlap, the lower part shows through.
+- GPUI can't draw a group into a layer of its own, so limu-gpui applies an item's opacity to each of its colors. Where an item's parts overlap, the lower part shows through.
 - Images are drawn opaque, as GPUI draws images.
 - GPUI keeps a font's metrics to itself, so an underline is drawn a tenth of the text's size below the baseline and a fifteenth of it thick.
 - When a corner radius is too large for a box, limu-gpui uses the smaller of half the width and half the height. SVG uses elliptical corners instead.

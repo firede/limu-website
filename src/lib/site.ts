@@ -5,21 +5,21 @@ export const modulePath = 'github.com/firede/limu';
 
 // The pages, in the order the navigation lists them. The home page and the examples are
 // pages of their own; the other pages have a Markdown source in content/docs. A page of a
-// backend that only one language has names it.
+// backend that only one language has names it. zh is a page's title in Chinese.
 export const docsPages = [
-  { id: 'introduction', title: 'Introduction' },
-  { id: 'examples', title: 'Examples' },
-  { id: 'getting-started', title: 'Getting started' },
-  { id: 'api', title: 'API' },
-  { id: 'theming', title: 'Theming' },
-  { id: 'svg', title: 'SVG' },
-  { id: 'tiny-skia', title: 'tiny-skia', language: 'rust' },
-  { id: 'core-graphics', title: 'Core Graphics', language: 'rust' },
-  { id: 'gpui', title: 'GPUI', language: 'rust' },
-  { id: 'terminal', title: 'Terminal', language: 'rust' },
-  { id: 'mygo', title: 'MyGo', language: 'go' },
-  { id: 'architecture', title: 'Architecture' },
-  { id: 'compatibility', title: 'Compatibility' },
+  { id: 'introduction', title: 'Introduction', zh: '简介' },
+  { id: 'examples', title: 'Examples', zh: '示例' },
+  { id: 'getting-started', title: 'Getting started', zh: '快速上手' },
+  { id: 'api', title: 'API', zh: 'API' },
+  { id: 'theming', title: 'Theming', zh: '主题' },
+  { id: 'svg', title: 'SVG', zh: 'SVG' },
+  { id: 'tiny-skia', title: 'tiny-skia', zh: 'tiny-skia', language: 'rust' },
+  { id: 'core-graphics', title: 'Core Graphics', zh: 'Core Graphics', language: 'rust' },
+  { id: 'gpui', title: 'GPUI', zh: 'GPUI', language: 'rust' },
+  { id: 'terminal', title: 'Terminal', zh: '终端', language: 'rust' },
+  { id: 'mygo', title: 'MyGo', zh: 'MyGo', language: 'go' },
+  { id: 'architecture', title: 'Architecture', zh: '架构' },
+  { id: 'compatibility', title: 'Compatibility', zh: '兼容性' },
 ] as const;
 
 export const languageTitles = { rust: 'Rust', go: 'Go' } as const;

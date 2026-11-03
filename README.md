@@ -3,7 +3,8 @@
 The website at [limu.firede.com](https://limu.firede.com), for limu-rs in Rust and limu in
 Go, built with Astro and served by Cloudflare as a Worker of static assets.
 [docs/website.md](docs/website.md) says what it holds and how it looks, and
-[AGENTS.md](AGENTS.md) has the rules for changing it.
+[AGENTS.md](AGENTS.md) has the rules for changing it. The site is in English and in
+Simplified Chinese, whose documents are in `src/content/zh`, under `/zh` on the site.
 
 It needs Node 22.13 or later, pnpm, Go, and Rust with its `wasm32-unknown-unknown` target.
 

@@ -3,7 +3,7 @@ title: "Getting started"
 description: "Install limu, lay out a diagram, and render it as SVG."
 ---
 
-limu turns Mermaid text into a scene, which records what each part of a diagram is and where it goes. A backend then draws the scene. This page uses the SVG backend, which needs only the standard library, as limu itself does. The examples are in Rust and in Go. The switch at the top of the page, or above any example, picks the language for the whole site.
+limu is written twice, as limu-rs in Rust, whose crate is `limu`, and as limu in Go. They lay diagrams out alike, so these pages call both limu where they agree. limu turns Mermaid text into a scene, which records what each part of a diagram is and where it goes. A backend then draws the scene. This page uses the SVG backend, which, like limu itself, needs only the standard library. The examples are in Rust and Go. Pick a language with the switch at the top of the page or above any example, and the whole site follows it.
 
 ## Installing
 

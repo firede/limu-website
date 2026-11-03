@@ -71,7 +71,9 @@ CGContext::scale_ctm(Some(cx), 1.0, -1.0);
 
 `draw` doesn't fill a background, and it ignores `Options.scale`. It leaves the context's state as it found it.
 
-limu-coregraphics draws the same picture as the SVG writer, with one difference. When a corner radius is too large for a box, it uses the smaller of half the width and half the height. SVG uses elliptical corners instead. An item's opacity is drawn as a transparency layer, as SVG draws a group at an opacity, so where an item's parts overlap, the lower part doesn't show through.
+limu-coregraphics draws the same picture as the SVG writer, with one difference. When a corner radius is too large for a box, it uses the smaller of half the width and half the height. SVG uses elliptical corners instead.
+
+As in SVG, an item's opacity is drawn as a transparency layer, so where an item's parts overlap, the lower part doesn't show through.
 
 ## Fonts
 
@@ -135,7 +137,7 @@ limu_coregraphics::draw_with(&scene, &o, cx, |p, it, s| {
         p.item(it, s);
         return;
     }
-    // Draw the node as a square box of our own, and its label the default way.
+    // Draw the node as a box of our own with square corners, and its label the default way.
     let cx = Some(p.canvas().context());
     let (b, c) = (it.bounds, s.fill.color);
     let k = |v: u8| f64::from(v) / 255.0;

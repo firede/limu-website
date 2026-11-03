@@ -2,6 +2,7 @@
 // script in BaseLayout's head sets it on the root, as data-lang, before the page is drawn,
 // and CSS shows only what is for it. Rust is the language until another is picked.
 
+import { ui } from '../lib/i18n';
 import { repositoryUrl, rustRepositoryUrl } from '../lib/site';
 
 export type Language = 'go' | 'rust';
@@ -27,7 +28,7 @@ function show(language: Language) {
   // The link to GitHub goes to the repository of the language.
   document.querySelectorAll<HTMLAnchorElement>('a[data-repository-link]').forEach((link) => {
     link.href = language === 'rust' ? rustRepositoryUrl : repositoryUrl;
-    link.setAttribute('aria-label', `${language === 'rust' ? 'limu-rs' : 'limu'} on GitHub`);
+    link.setAttribute('aria-label', ui[document.documentElement.lang.startsWith('zh') ? 'zh' : 'en'].onGitHub(language === 'rust' ? 'limu-rs' : 'limu'));
   });
   document.dispatchEvent(new CustomEvent('limu:language', { detail: language }));
 }

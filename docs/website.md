@@ -9,7 +9,8 @@ The site is built with Astro, as Pele's is, from this repository, which is the w
 limu and limu-rs and nothing else. It was `website/` in limu's repository until 2026-10-29, and its history came
 with it. Cloudflare serves it as the static assets of a Worker, as it serves mygo-platinum's
 site. A push to main deploys it (`.github/workflows/site.yml`), and `pnpm run deploy`
-deploys it by hand. The site is in English only. The import path stays
+deploys it by hand. The site is in English and Simplified Chinese, as
+[Two human languages](#two-human-languages) says. The import path stays
 `github.com/firede/limu`, so the site's domain isn't a vanity import path.
 
 The site shows a release of limu, never limu's main branch. `go.mod` requires the release of
@@ -31,7 +32,7 @@ work.
 
 - The mark and the icon.
 - The SVG of every example, drawn by the svg package.
-- The SVG of each Mermaid code block a document marks `draw`, such as
+- The SVG of each Mermaid code block a document marks `draw`, in English or in Chinese, such as
   ` ```mermaid draw title="limu" mark="scene" `. The page shows the drawing in place of the
   code block, and the Markdown keeps the source.
 - `style.Kohu` and `style.KohuDark` as the `--limu-*` variables, so the diagrams follow the
@@ -88,6 +89,35 @@ Markdown and in their prose. A document marks what is for one language in three 
 The pages of a backend that only one language has are listed for both readers, with a badge
 that names the language. The Markdown a page is also served as keeps both languages, and
 writes each inline name with its language in words.
+
+### Two human languages
+
+The site is written in English and in Simplified Chinese. English is at the root, and Chinese
+is at the same paths under `/zh`, such as `/zh/getting-started`. An icon in the top right
+corner, before the GitHub link, links to the same page in the other language, and keeps the
+heading the reader is at. Nothing redirects by the browser's language. The playgrounds and
+the 404 page are in English alone, and have no such link.
+
+The Chinese documents are `src/content/zh/docs`, under the English ones' names, and the
+Chinese home page's Markdown is `src/content/zh/pages/index.md`. A Chinese document has the
+English one's headings in the same order, each given the English heading's anchor with
+`{#anchor}`, so a link to a heading works in either language. The build fails when the
+headings differ. A Chinese document links to the English paths, as `/api#layout`, and the
+build takes the links to the Chinese pages. The Chinese Markdown served at `.md` has those
+links and no `{#anchor}`. Code, Mermaid sources and the terminal's printed output stay as the
+English documents have them, with the code's comments in Chinese. The diagrams marked `draw`
+are written in Chinese, and `gen` draws them too.
+
+The home page is one component, `Home.astro`, with its words in both languages, and
+`src/lib/i18n.ts` holds the words of the site's own controls. The examples' pages are in
+Chinese too, with each type's name and description from `src/lib/examples-zh.ts`, and with
+the examples' titles and diagrams in English, as limu's gallery writes them. A type the gallery
+adds fails the build until it has a Chinese name. `llms.txt` lists the Chinese documents in a
+section of their own, and the sitemap lists the Chinese pages. Each page names the other with
+`hreflang`.
+
+Chinese is set in the system's Chinese font, PingFang SC on Apple's platforms, after Hanken
+Grotesk, which has no Chinese.
 
 ### Home
 
@@ -268,7 +298,8 @@ fonts it's drawn in, and that the system's text engine adds a little room where 
 characters meet Latin letters and digits, which `Fonts` measure too.
 
 Every page is also served as Markdown at its path plus `.md`, and `/llms.txt` lists them for
-agents. The site has a sitemap, a `robots.txt` and a 404 page.
+agents. Each document has a Chinese translation, as [Two human languages](#two-human-languages)
+says. The site has a sitemap, a `robots.txt` and a 404 page.
 
 ## Look
 

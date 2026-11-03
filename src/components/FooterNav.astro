@@ -1,24 +1,28 @@
 ---
 import { navPages } from '../lib/nav';
+import { localeOf, localePath, pageTitle, ui } from '../lib/i18n';
 import { pageHref, repositoryUrl, rustRepositoryUrl, type DocsPageId } from '../lib/site';
+
+const locale = localeOf(Astro.url.pathname);
+const t = ui[locale];
 
 // The footer groups the pages, so that each group is a short column. A page is listed once
 // it exists; the playground and the repository are not pages of the site's navigation.
 const groups: { title: string; pages: DocsPageId[]; extra?: { title: string; href: string; external?: boolean; playground?: boolean }[] }[] = [
-  { title: 'Start', pages: ['introduction', 'getting-started', 'examples'], extra: [{ title: 'Playground', href: '/playground/rust', playground: true }] },
-  { title: 'Guides', pages: ['api', 'theming', 'svg'] },
-  { title: 'Backends', pages: ['tiny-skia', 'core-graphics', 'gpui', 'terminal', 'mygo'] },
-  { title: 'Project', pages: ['architecture', 'compatibility'], extra: [{ title: 'limu-rs on GitHub', href: rustRepositoryUrl, external: true }, { title: 'limu on GitHub', href: repositoryUrl, external: true }] },
+  { title: t.footerGroups.start, pages: ['introduction', 'getting-started', 'examples'], extra: [{ title: t.playground, href: '/playground/rust', playground: true }] },
+  { title: t.footerGroups.guides, pages: ['api', 'theming', 'svg'] },
+  { title: t.footerGroups.backends, pages: ['tiny-skia', 'core-graphics', 'gpui', 'terminal', 'mygo'] },
+  { title: t.footerGroups.project, pages: ['architecture', 'compatibility'], extra: [{ title: t.onGitHub('limu-rs'), href: rustRepositoryUrl, external: true }, { title: t.onGitHub('limu'), href: repositoryUrl, external: true }] },
 ];
 const listed = (id: DocsPageId) => navPages.find((page) => page.id === id);
 ---
 
-<nav class="footer-nav" aria-label="Footer navigation">
+<nav class="footer-nav" aria-label={t.footerNavigation}>
   {groups.map((group) => (
     <div class="footer-nav-group">
       <h2>{group.title}</h2>
       <ul>
-        {group.pages.map(listed).filter((page) => page !== undefined).map((page) => <li><a href={pageHref(page.id)}>{page.title}</a></li>)}
+        {group.pages.map(listed).filter((page) => page !== undefined).map((page) => <li><a href={localePath(locale, pageHref(page.id))}>{pageTitle(locale, page.id)}</a></li>)}
         {group.extra?.map((link) => (
           <li>
             {link.external

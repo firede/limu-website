@@ -3,7 +3,7 @@ title: "tiny-skia"
 description: "Draw diagrams into bitmaps and PNGs with tiny-skia, in fonts your program carries."
 ---
 
-The limu-tiny-skia crate draws limu's scenes into [tiny-skia](https://github.com/linebender/tiny-skia) pixmaps, which it can save as PNGs. It needs no GPU and no system libraries, so it runs on servers, in command-line tools and anywhere else Rust builds. Text is shaped with [rustybuzz](https://github.com/harfbuzz/rustybuzz) in font files your program gives it, so a diagram comes out the same on every machine. limu-rs also uses it to draw the golden images that check its default drawing.
+The limu-tiny-skia crate draws limu's scenes into [tiny-skia](https://github.com/linebender/tiny-skia) pixmaps, which it can save as PNGs. It needs no GPU and no system libraries, so it runs on servers, in command-line tools and anywhere else Rust builds. Text is shaped with [rustybuzz](https://github.com/harfbuzz/rustybuzz) in font files your program gives it, so a diagram comes out the same on every machine.
 
 limu-rs is young, and its API will change in any 0.x release.
 
@@ -66,7 +66,9 @@ let at = Transform::from_row(2.0, 0.0, 0.0, 2.0, 40.0, 40.0);
 limu_tiny_skia::draw(&scene, &o, &mut pixmap.as_mut(), at);
 ```
 
-limu-tiny-skia draws the same picture as the SVG writer, with one difference. When a corner radius is too large for a box, it uses the smaller of half the width and half the height. SVG uses elliptical corners instead. An item's opacity is drawn as a layer, a pixmap of its own laid over what is under it, as SVG draws a group at an opacity, so where an item's parts overlap, the lower part doesn't show through.
+limu-tiny-skia draws the same picture as the SVG writer, with one difference. When a corner radius is too large for a box, it uses the smaller of half the width and half the height. SVG uses elliptical corners instead.
+
+As in SVG, an item's opacity is drawn as a layer, a pixmap of its own laid over what is under it, so where an item's parts overlap, the lower part doesn't show through.
 
 ## Fonts
 
@@ -142,7 +144,7 @@ limu_tiny_skia::draw_with(&scene, &o, &mut pixmap.as_mut(), Transform::identity(
         p.item(it, s);
         return;
     }
-    // Draw the node as a square box of our own, and its label the default way.
+    // Draw the node as a box of our own with square corners, and its label the default way.
     let b = it.bounds;
     if let Some(r) = Rect::from_xywh(b.x as f32, b.y as f32, b.w as f32, b.h as f32) {
         let mut paint = Paint::default();

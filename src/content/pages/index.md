@@ -7,14 +7,14 @@ limu is a diagram layout engine in Rust and Go. It reads Mermaid and leaves the 
 
 ## How it works
 
-Mermaid and Pele lay out a diagram and write it as SVG for a browser to draw.
+Mermaid and Pele, the Mermaid renderer limu is ported from, lay out a diagram and write it as SVG for a browser to draw.
 
 ```mermaid
 flowchart LR
   text[Mermaid text] --> layout[Layout] --> svg[SVG] --> browser[Browser]
 ```
 
-limu stops one step earlier, at the scene. A scene is the laid-out diagram as data. It says what each part is and where it goes, but not how it looks. A backend then draws it, whether that is GPUI or MyGo on the GPU, tiny-skia or Core Graphics into a bitmap, a terminal's cells, SVG, or one you write.
+limu stops one step earlier, at the scene. A scene is the laid-out diagram as data. It says what each part is and where it goes, but not how it looks. A backend then draws it. limu has backends for GPUI and MyGo on the GPU, for tiny-skia and Core Graphics into a bitmap, for a terminal's cells and for SVG, and you can write your own.
 
 ```mermaid
 flowchart LR
@@ -31,6 +31,10 @@ Because the scene holds no colors, it's laid out once and can be drawn any numbe
 ![Drawn in limu’s light theme.](/pictures/kohu.png "Kohu")
 ![Only the colors change.](/pictures/kohu-dark.png "KohuDark")
 ![Each part drawn its own way, with MyGo’s glass.](/pictures/glass.png "Liquid Glass")
+
+A backend can go further and lay a diagram out again for a look of its own, as [mygo-platinum](https://github.com/firede/mygo-platinum) does for the Platinum desktop.
+
+![Laid out again in bitmap faces, and drawn a pixel at a time.](/pictures/platinum.png "Platinum")
 
 An app can also ask the scene which part is under the pointer.
 
@@ -171,6 +175,6 @@ out := svg.Render(sc, &svg.Options{Look: style.Look{Theme: style.Kohu()}})
 
 ## limu and Pele
 
-limu is ported function by function from [Pele](https://pele.run), the small, fast Mermaid renderer made by the [Obsidian](https://obsidian.md) team, twice, as limu-rs in Rust and as limu in Go. Both ports' tests check that their layouts match Pele's number for number. Both are open source under the MIT license, in [Rust](https://github.com/firede/limu-rs) and in [Go](https://github.com/firede/limu).
+limu is ported function by function from [Pele](https://pele.run), the small, fast Mermaid renderer made by the [Obsidian](https://obsidian.md) team. There are two ports, limu-rs in Rust and limu in Go, and the tests of each check that its layouts match Pele's number for number. Both are open source under the MIT license, in [Rust](https://github.com/firede/limu-rs) and in [Go](https://github.com/firede/limu).
 
 Pele is named after the goddess of Hawaiʻi's volcanoes. Limu is the Hawaiian word for the algae in its seas, and this site takes its colors from limu kohu, a red alga that grows in tide pools.

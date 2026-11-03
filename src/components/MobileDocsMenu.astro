@@ -1,5 +1,6 @@
 ---
 import DocsNavigation from './DocsNavigation.astro';
+import { localeOf, ui } from '../lib/i18n';
 import type { DocsPageId, Heading } from '../lib/site';
 
 interface Props {
@@ -9,12 +10,13 @@ interface Props {
 }
 
 const { current, headings = [], child } = Astro.props;
+const t = ui[localeOf(Astro.url.pathname)];
 ---
 
 <button
   class="header-action mobile-docs-trigger"
   type="button"
-  aria-label="Open documentation menu"
+  aria-label={t.openMenu}
   aria-haspopup="dialog"
   aria-expanded="false"
   aria-controls="mobile-docs-panel"
@@ -26,12 +28,12 @@ const { current, headings = [], child } = Astro.props;
   </svg>
 </button>
 <div class="mobile-docs-backdrop" data-docs-menu-backdrop hidden>
-  <section id="mobile-docs-panel" class="mobile-docs-panel" role="dialog" aria-label="Documentation menu">
+  <section id="mobile-docs-panel" class="mobile-docs-panel" role="dialog" aria-label={t.documentationMenu}>
     <div class="mobile-docs-content">
       <a class="mobile-docs-playground" href="/playground">
-        <span>Playground</span>
+        <span>{t.playground}</span>
       </a>
-      <DocsNavigation class="mobile-docs-navigation" current={current} headings={headings} child={child} ariaLabel="Documentation menu" />
+      <DocsNavigation class="mobile-docs-navigation" current={current} headings={headings} child={child} ariaLabel={t.documentationMenu} />
     </div>
   </section>
 </div>

@@ -1,5 +1,6 @@
 ---
 import { navPages } from '../lib/nav';
+import { localeOf, localePath, pageTitle, ui } from '../lib/i18n';
 import { languageTitles, pageHref, type DocsPageId, type Heading } from '../lib/site';
 
 interface Props {
@@ -11,7 +12,8 @@ interface Props {
   ariaLabel?: string;
 }
 
-const { class: className, current, headings = [], child, ariaLabel = 'Documentation' } = Astro.props;
+const locale = localeOf(Astro.url.pathname);
+const { class: className, current, headings = [], child, ariaLabel = ui[locale].documentation } = Astro.props;
 const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 const nested = child !== undefined;
 ---
@@ -21,10 +23,10 @@ const nested = child !== undefined;
     <div class="docs-toc-page">
       <a
         class:list={['docs-toc-title', { 'is-current': page.id === current }]}
-        href={page.id === current && !nested ? '#top' : pageHref(page.id)}
+        href={page.id === current && !nested ? '#top' : localePath(locale, pageHref(page.id))}
         aria-current={page.id === current && !nested ? 'page' : undefined}
       >
-        {page.title}
+        {pageTitle(locale, page.id)}
         {'language' in page && <span class="docs-toc-language">{languageTitles[page.language]}</span>}
       </a>
       {page.id === current && (nested || toc.length > 0) && (

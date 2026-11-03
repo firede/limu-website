@@ -1,0 +1,17 @@
+---
+import ExampleTypePage from '../../../components/ExampleTypePage.astro';
+import { exampleTypes, type ExampleType } from '../../../lib/examples';
+
+export const getStaticPaths = () => exampleTypes.map((t, i) => ({
+  params: { type: t.type },
+  props: { t, previous: exampleTypes[i - 1], next: exampleTypes[i + 1] },
+}));
+
+interface Props {
+  t: ExampleType;
+  previous?: ExampleType;
+  next?: ExampleType;
+}
+---
+
+<ExampleTypePage {...Astro.props} />

@@ -27,7 +27,7 @@ flowchart LR
   scene --> own[A backend of your own]
 ```
 
-With an SVG renderer, the SVG is all an app gets, and an app that doesn't draw SVG, such as a native app, has nothing to work with. A scene is the laid-out diagram as data, before anything is drawn. An app can draw it with whatever tools it has, and can ask it what is where.
+With an SVG renderer, SVG is all an app gets, and a native app that doesn't draw SVG has nothing to work with. A scene is the laid-out diagram as data, before anything is drawn. An app can draw it with whatever tools it has, and can ask it what is where.
 
 ## The stages
 
@@ -108,11 +108,11 @@ A backend walks the scene's items in order and draws each one. It fills and stro
 
 ## Ported from Pele
 
-Most of limu is ported function by function from [Pele](https://pele.run), the Mermaid renderer made by the Obsidian team. The ports keep Pele's names, in Rust's case and in Go's, so each codebase can be read side by side with Pele. limu-rs is ported from Pele too, not from limu. Both follow Pele 1.13.0.
+Most of limu is ported function by function from [Pele](https://pele.run), the Mermaid renderer made by the Obsidian team. The ports keep Pele's names, in each language's letter case, so each codebase can be read side by side with Pele. limu-rs is ported from Pele too, not from limu. Both follow Pele 1.13.0.
 
 Their tests check their output against Pele's, number for number. A tool called the oracle runs Pele's TypeScript source with Node over more than a hundred thousand diagrams, taken from Pele's tests and documentation and from variations of them, and saves Pele's output as fixtures. limu's oracle is part of limu. limu-rs downloads its fixtures from the releases of [pele-oracle](https://github.com/firede/pele-oracle), which grew out of limu's. The tests compare against those fixtures, and even a difference in the last bit of a number counts as a bug in the port. The tests run on both amd64 and arm64.
 
-To match Pele to the last bit, the ports keep JavaScript's behavior wherever it affects measuring or placement. Strings are counted in UTF-16 code units, white space and letter case follow JavaScript, `Math.round` rounds halves the same way, and trigonometry and JSON parsing follow V8. Products are kept separate from the sums they appear in, as JavaScript keeps them. Go would otherwise fuse them into a single rounding on arm64, while Rust never does unless asked. Text is measured the way Pele measures it without fonts, from a table of Arial's character widths.
+To match Pele to the last bit, the ports keep JavaScript's behavior wherever it affects measuring or placement. Strings are counted in UTF-16 code units, white space and letter case follow JavaScript, `Math.round` rounds halves the same way, and trigonometry and JSON parsing follow V8. A product is rounded before it's added to a sum, as in JavaScript, where Go on arm64 would otherwise fuse the two into one rounding. Text is measured the way Pele measures it without fonts, from a table of Arial's character widths.
 
 Matching Pele is how the ports are verified, not the goal in itself. Where Mermaid hands a diagram to an outside library, Pele often uses a layout of its own, and limu follows Pele. See [Compatibility](/compatibility).
 

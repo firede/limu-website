@@ -108,7 +108,7 @@ The overrides map a role to a style, `rust:limu::scene::style::Style` `go:style.
 
 A paint can be a theme color such as `rust:Paint::SURFACE` `go:style.Surface`, `rust:Paint::ACCENT` `go:style.Accent` or `rust:Paint::series(2)` `go:style.Series(2)`, a color of its own such as `rust:Paint::own(Color::hex("#3d6aa3"))` `go:style.Of(style.Hex("#3d6aa3"))`, or `rust:Paint::NONE` `go:style.None` to draw nothing. `rust:Paint::with_opacity` `go:Paint.Alpha` makes a paint partly transparent. In Go, set measures with `style.N`, as in `StrokeWidth: style.N(2)`. In Rust, every field is an `Option`, as in `stroke_width: Some(2.0)`.
 
-Styles cascade in this order, from lowest to highest priority. The theme's measures come first, then the diagram's own style for the part, then your overrides for its role, and finally whatever the diagram's author wrote in the text.
+Styles cascade in this order, from lowest to highest priority. The theme's measures, its corner radius and line width, come first, then the diagram's own style for the part, which is the theme colors its type of diagram gives it, then your overrides for its role, and finally whatever the diagram's author wrote in the text.
 
 ### Roles
 
@@ -164,7 +164,7 @@ limu reads `fill`, `stroke`, `color`, the opacities, `stroke-width`, `stroke-das
 
 The author's styles sit above your overrides. Their colors are fixed and don't change with the theme.
 
-When the author fills a part and sets no color for its text, the text is drawn in the theme's foreground or background, whichever stands out more against the fill, as Pele does. The same goes for edges and labels that lie inside a group the author fills, such as a subgraph, a block or a sequence diagram's box. An edge that crosses the border of such a fill is drawn over a casing in the background's color, so it stays visible where it runs over the fill. A casing is an item with a role of its own, such as `block.casing`. A group that a diagram draws translucent, such as a block diagram's composite block, is drawn opaque when the author fills it.
+When the author fills a part but sets no color for its text, the text is drawn in the theme's foreground or background, whichever stands out more against the fill, as Pele does. The same goes for edges and labels inside a group the author fills, such as a subgraph, a block or a sequence diagram's box. An edge that crosses the border of such a group is drawn over a casing, a wider line in the background's color, so it stays visible over the fill. A casing is an item with a role of its own, such as `block.casing`. A group that a diagram draws translucent, such as a block diagram's composite block, is drawn opaque when the author fills it.
 
 ### Palettes
 
@@ -186,7 +186,7 @@ limu treats a palette as the author's colors, like a `style` line. A part drawn 
 
 ### Drawing with the theme alone
 
-On a page whose look is set by design tokens, a diagram's text shouldn't change it. Set `rust:theme_only` `go:ThemeOnly` on the look, and the backend draws with the theme and your overrides alone. It leaves out the author's styles, palettes among them, the colors picked for what lies on an author's fill, and the casings.
+When a page's look comes from design tokens, a diagram's text shouldn't be able to change it. Set `rust:theme_only` `go:ThemeOnly` on the look, and the backend draws with the theme and your overrides alone. It leaves out the author's styles, palettes among them, the colors of text and edges picked to stand out against an author's fill, and the casings.
 
 ```rust
 let mut look = Look::new(Theme::KOHU);
@@ -197,4 +197,4 @@ look.theme_only = true;
 look := style.Look{Theme: style.Kohu(), ThemeOnly: true}
 ```
 
-The look changes only how things are drawn. What the author set that changes a size stays, since layout measured it, such as the weight, slant and size of text and the radius of a quadrant chart's point.
+`rust:theme_only` `go:ThemeOnly` changes only how things are drawn. What the author set that changes a size still applies, because layout has already measured it. That covers the weight, slant and size of text, and the radius of a quadrant chart's points.

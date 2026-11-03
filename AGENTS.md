@@ -15,8 +15,12 @@ Read docs/website.md first. It says what the site holds, how it looks, and how i
   what changed since the release before it, and change the documents that describe what
   changed. `./scripts/releases.sh` says whether the site follows the latest releases, and
   fails each day in CI while it doesn't.
-- The documents are shared by both languages. A name or an example that differs between
-  them is written for each, as docs/website.md describes, and every Rust example compiles
+- Every document is written in English and in Simplified Chinese (`src/content/zh`). A change
+  to a document changes its translation too, with the same headings and anchors, as
+  docs/website.md describes. The Chinese is plain technical Chinese, translated for meaning,
+  not word for word.
+- The documents are shared by both programming languages. A name or an example that differs
+  between them is written for each, as docs/website.md describes, and every Rust example compiles
   against the limu-rs the site follows.
 - `go test ./gen`, `pnpm check` and `pnpm build` pass before a change is done, after
   `pnpm playground` when a playground's release changed.

@@ -3,11 +3,16 @@ import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import remarkGfm from 'remark-gfm';
 import { highlightCode, highlightInline } from './src/lib/highlight.ts';
+import { localizeHref, ui } from './src/lib/i18n.ts';
 import { refreshDevCss } from './lib/dev-css.mjs';
 import { pictureParagraphs } from './lib/pictures.mjs';
 
+// The locale of the document a Markdown file is, from where it is: content/zh holds the
+// Chinese documents.
+const localeOfFile = (file) => (file?.path?.includes('/src/content/zh/') ? 'zh' : 'en');
+
 const copyIcon = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>';
-const copyButton = `<button type="button" class="doc-code-copy" data-copy-code title="Copy code" aria-label="Copy code">${copyIcon}</button>`;
+const copyButton = (locale) => `<button type="button" class="doc-code-copy" data-copy-code data-copy-label="${ui[locale].copyCode}" title="${ui[locale].copyCode}" aria-label="${ui[locale].copyCode}">${copyIcon}</button>`;
 const escapeHtml = (value) => value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character);
 const metaValue = (node, name) => {
   const match = typeof node.meta === 'string' ? node.meta.match(new RegExp(`(?:^|\\s)${name}=(?:"([^"]+)"|'([^']+)'|([^\\s]+))`)) : undefined;
@@ -16,13 +21,13 @@ const metaValue = (node, name) => {
 const codeBlockLabel = (node) => metaValue(node, 'title');
 const languageAliases = { golang: 'go', rs: 'rust', typescript: 'ts', js: 'ts', javascript: 'ts', bash: 'shell', sh: 'shell', html: 'xml', svg: 'xml' };
 const plainCode = (value) => value.split('\n').map((line, index) => `<span class="doc-code-line"><span class="doc-line-number" hidden>${index + 1}</span><span class="doc-code-source">${escapeHtml(line)}</span></span>`).join('');
-const renderCodeBlock = (node) => {
+const renderCodeBlock = (node, locale) => {
   const label = codeBlockLabel(node);
   const language = languageAliases[node.lang] ?? node.lang ?? 'text';
   const highlighted = ['mermaid', 'go', 'rust', 'ts', 'shell', 'css', 'xml'].includes(language) ? highlightCode(node.value, language) : plainCode(node.value);
   const caption = label
-    ? `<figcaption><span>${escapeHtml(label)}</span><span class="doc-code-actions">${copyButton}</span></figcaption>`
-    : copyButton;
+    ? `<figcaption><span>${escapeHtml(label)}</span><span class="doc-code-actions">${copyButton(locale)}</span></figcaption>`
+    : copyButton(locale);
   return `<figure class="doc-code${label ? '' : ' doc-code-unlabeled'}" data-code-block>${caption}<pre><code data-language="${escapeHtml(language)}">${highlighted}</code></pre></figure>`;
 };
 
@@ -58,15 +63,15 @@ const languageOf = (node) => {
 // Code blocks next to each other, each for another language, are one example written in
 // each, shown as tabs that follow the language the reader picked. The page's Markdown keeps
 // them one after another.
-const renderCodeTabs = (nodes) => {
+const renderCodeTabs = (nodes, locale) => {
   const tabs = languages.filter((l) => nodes.some((n) => languageOf(n) === l.id))
     .map((l) => `<button type="button" data-lang-tab="${l.id}" aria-pressed="false">${l.title}</button>`).join('');
-  const panels = nodes.map((n) => `<div class="code-tab-panel" data-lang-only="${languageOf(n)}">${renderCodeBlock(n)}</div>`).join('');
-  return `<div class="code-tabs" data-code-tabs><div class="segmented-control code-tabs-switch" style="--segment-count: ${nodes.length}" role="group" aria-label="Language">${tabs}</div>${panels}</div>`;
+  const panels = nodes.map((n) => `<div class="code-tab-panel" data-lang-only="${languageOf(n)}">${renderCodeBlock(n, locale)}</div>`).join('');
+  return `<div class="code-tabs" data-code-tabs><div class="segmented-control code-tabs-switch" style="--segment-count: ${nodes.length}" role="group" aria-label="${ui[locale].language}">${tabs}</div>${panels}</div>`;
 };
 
 // Groups each run of code blocks for different languages into one node of tabs.
-const groupCodeTabs = (parent) => {
+const groupCodeTabs = (parent, locale) => {
   const out = [];
   for (let i = 0; i < parent.children.length; i++) {
     const run = [];
@@ -79,7 +84,7 @@ const groupCodeTabs = (parent) => {
       run.push(node);
     }
     if (run.length > 1) {
-      out.push({ type: 'html', value: renderCodeTabs(run) });
+      out.push({ type: 'html', value: renderCodeTabs(run, locale) });
       i += run.length - 1;
     } else {
       out.push(parent.children[i]);
@@ -94,8 +99,11 @@ const groupCodeTabs = (parent) => {
 const inlineLanguage = /^(go|rust):(.+)$/s;
 
 function staticCodeBlocks() {
-  return (tree) => {
+  return (tree, file) => {
+    const locale = localeOfFile(file);
     const visit = (node, parent, index) => {
+      // A Chinese document links to the English paths, which lead to the Chinese pages.
+      if (node?.type === 'link') node.url = localizeHref(locale, node.url);
       if (node?.type === 'link' && /^https?:\/\//.test(node.url)) {
         node.data = {
           ...node.data,
@@ -122,12 +130,12 @@ function staticCodeBlocks() {
       if (node?.type === 'code' && parent && typeof index === 'number') {
         parent.children[index] = {
           type: 'html',
-          value: drawsDiagram(node) ? renderDiagram(node) : renderCodeBlock(node),
+          value: drawsDiagram(node) ? renderDiagram(node) : renderCodeBlock(node, locale),
         };
         return;
       }
       if (Array.isArray(node?.children)) {
-        groupCodeTabs(node);
+        groupCodeTabs(node, locale);
         node.children.forEach((child, childIndex) => visit(child, node, childIndex));
       }
     };
@@ -135,10 +143,31 @@ function staticCodeBlocks() {
   };
 }
 
+// A heading written `## Title {#id}` takes the id, as the Chinese documents give their
+// headings the English ones' anchors.
+function headingIds() {
+  return (tree) => {
+    const visit = (node) => {
+      if (node.type === 'heading') {
+        const last = node.children.at(-1);
+        const match = last?.type === 'text' ? last.value.match(/\s*\{#([\w-]+)\}\s*$/) : undefined;
+        if (match) {
+          last.value = last.value.slice(0, match.index);
+          node.data = { ...node.data, hProperties: { ...node.data?.hProperties, id: match[1] } };
+        }
+        return;
+      }
+      node.children?.forEach(visit);
+    };
+    visit(tree);
+  };
+}
+
 const textContent = (node) => node.type === 'text' ? node.value : (node.children ?? []).map(textContent).join('');
 
 function scrollableTables() {
-  return (tree) => {
+  return (tree, file) => {
+    const locale = localeOfFile(file);
     let heading = '';
     const visit = (node) => {
       if (!Array.isArray(node?.children)) return;
@@ -148,7 +177,7 @@ function scrollableTables() {
           return {
             type: 'element',
             tagName: 'div',
-            properties: { className: ['table-wrap'], role: 'region', tabIndex: 0, ariaLabel: heading ? `${heading} table` : 'Table' },
+            properties: { className: ['table-wrap'], role: 'region', tabIndex: 0, ariaLabel: ui[locale].table(heading) },
             children: [child],
           };
         }
@@ -174,7 +203,7 @@ export default defineConfig({
   markdown: {
     syntaxHighlight: false,
     processor: unified({
-      remarkPlugins: [remarkGfm, staticCodeBlocks, pictureParagraphs],
+      remarkPlugins: [remarkGfm, headingIds, staticCodeBlocks, pictureParagraphs],
       rehypePlugins: [scrollableTables],
     }),
   },
