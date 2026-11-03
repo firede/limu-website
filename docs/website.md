@@ -225,9 +225,12 @@ with `GOOS=js GOARCH=wasm go build -trimpath -tags mygo_noinspector -ldflags="-s
 
 Of the playground's 16.7 MB of code, limu's diagrams are 6.1 MB, Go's runtime and standard
 library 5.5 MB, MyGo 4.0 MB (2.3 MB of it its `ui` and `editor`), and limu's other packages
-0.7 MB. The rest of the file is 7.7 MB of data. Cloudflare serves assets of at most 25 MiB
-and compresses `application/wasm`. The playground's build and the site's fail when the
-WebAssembly passes 24 MiB. Past 25 MiB, it would have to be served from R2.
+0.7 MB. The rest of the file is 7.7 MB of data. Cloudflare serves assets of at most 25 MiB.
+Built with limu v0.5.0 and MyGo v0.7.4, the playground is 25.2 MB (24.1 MiB), so it is kept
+gzipped, 6.5 MB, and the page unpacks it with `DecompressionStream` as it comes. A browser
+downloads the gzipped file, a little more than the 4.4 MB brotli Cloudflare sent while it
+compressed the WebAssembly itself, since not every browser unpacks brotli in a script. The
+playground's build and the site's fail when the gzipped file passes 24 MiB.
 
 `/playground/rust` is limu-rs's playground. limu-rs builds it from its `limu-playground`
 crate, a module of WebAssembly with no imports, and `limu.js`, the script a page calls it

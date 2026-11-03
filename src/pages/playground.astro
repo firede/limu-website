@@ -1,7 +1,7 @@
 ---
 // The playground: limumygo/examples/playground compiled to WebAssembly, which fills the
-// window under a narrow bar of its own. scripts/playground.mjs builds it; this page loads
-// it. Until it starts, the page shows the text the playground will open, from the URL's
+// window under a narrow bar of its own. scripts/playground.mjs builds it and gzips it; this
+// page loads it and unpacks it. Until it starts, the page shows the text the playground will open, from the URL's
 // fragment or the first example, and how much of the WebAssembly has come.
 import { readFileSync, statSync } from 'node:fs';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -16,8 +16,8 @@ interface Built {
   size: number;
 }
 
-// Cloudflare serves an asset of at most 25 MiB; scripts/playground.mjs stops at 24, and so
-// does the build, should the file have been put there otherwise.
+// Cloudflare serves an asset of at most 25 MiB; scripts/playground.mjs stops when the gzipped
+// file passes 24, and so does the build, should the file have been put there otherwise.
 const maxSize = 24 * 1024 * 1024;
 
 let built: Built;
@@ -28,7 +28,7 @@ try {
 }
 const size = statSync(`public${built.wasm}`).size;
 if (size !== built.size) throw new Error(`public${built.wasm} is not the file scripts/playground.mjs wrote.`);
-if (size > maxSize) throw new Error(`The playground's WebAssembly is ${size} bytes, past the ${maxSize} the site allows.`);
+if (size > maxSize) throw new Error(`The playground's gzipped WebAssembly is ${size} bytes, past the ${maxSize} the site allows.`);
 
 // The text the playground opens without one in the URL, as firstSample in its examples.go.
 const firstExample = exampleTypes.find((t) => t.type === 'flowchart')?.examples[0]?.source ?? '';
@@ -100,21 +100,35 @@ const firstExample = exampleTypes.find((t) => t.type === 'flowchart')?.examples[
         // the way, and so are counted against its size.
         const reader = response.body.getReader();
         let received = 0;
+        const read = async () => {
+          const { done, value } = await reader.read();
+          if (!done) {
+            received += value.length;
+            show(`Loading the playground · ${Math.min(99, Math.floor((received / wasmSize) * 100))}%`, Math.min(1, received / wasmSize));
+          }
+          return { done, value };
+        };
+        // The file is gzipped, and is unpacked here, unless the server already unpacked it on
+        // the way, as it would were it to send it with Content-Encoding: gzip; a gzip stream
+        // starts with 1f 8b, and WebAssembly with 00 61.
+        const first = await read();
+        const gzipped = !first.done && first.value[0] === 0x1f && first.value[1] === 0x8b;
+        let pending = first;
         const counted = new ReadableStream({
           async pull(controller) {
-            const { done, value } = await reader.read();
+            const { done, value } = pending ?? (await read());
+            pending = undefined;
             if (done) {
               show('Starting the playground', 1);
               controller.close();
               return;
             }
-            received += value.length;
-            show(`Loading the playground · ${Math.min(99, Math.floor((received / wasmSize) * 100))}%`, Math.min(1, received / wasmSize));
             controller.enqueue(value);
           },
         });
+        const wasm = gzipped ? counted.pipeThrough(new DecompressionStream('gzip')) : counted;
         const go = new Go();
-        const { instance } = await WebAssembly.instantiateStreaming(new Response(counted, { headers: { 'Content-Type': 'application/wasm' } }), go.importObject);
+        const { instance } = await WebAssembly.instantiateStreaming(new Response(wasm, { headers: { 'Content-Type': 'application/wasm' } }), go.importObject);
         go.run(instance);
       };
       start().catch((error) => {

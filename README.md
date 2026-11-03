@@ -44,11 +44,12 @@ push.
   site's highlighter reads.
 
 `scripts/playground.mjs` compiles the Go playground, limumygo's `examples/playground` at
-the release `go.mod` requires, to WebAssembly. It writes the module and `wasm_exec.js`, Go's
-loader of it, to `public/assets/playground/go`, named by their content, which
-`public/_headers` has browsers keep for good. Their names and the module's size go to
-`src/generated/playground.json`, which `src/pages/playground.astro` reads. It fails when
-the module passes 24 MiB, as Cloudflare serves an asset of at most 25 MiB.
+the release `go.mod` requires, to WebAssembly, and gzips it. It writes the gzipped module and
+`wasm_exec.js`, Go's loader of it, to `public/assets/playground/go`, named by their content,
+which `public/_headers` has browsers keep for good. Their names and the gzipped module's size
+go to `src/generated/playground.json`, which `src/pages/playground.astro` reads, and the page
+unpacks the module as it comes. The module is kept gzipped because it is near the 25 MiB
+Cloudflare serves an asset at. The script still fails when the gzipped module passes 24 MiB.
 
 `scripts/playground-rust.mjs` builds the Rust playground from the commit or tag
 `limu-rs.json` names, with limu-rs's own `scripts/playground.sh`. It writes the module and
